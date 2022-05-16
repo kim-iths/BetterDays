@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "BetterDays",
+    "slug": "BetterDays",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "BetterDays"
+}
