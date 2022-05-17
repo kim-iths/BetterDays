@@ -5,6 +5,8 @@ const images = {
     homeFilled: require("../assets/home_filled.png"),
     history: require("../assets/history.png"),
     historyAlt: require("../assets/history_alt.png"),
+
+    arrow: require("../assets/arrow.png"),
 }
 
 export default images
