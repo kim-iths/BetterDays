@@ -4,10 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import images from './src/config/images'
 import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
-import HomeScreen from './src/screens/HomeScreen/HomeScreen';
 import HistoryScreen from './src/screens/HistoryScreen/HistoryScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import colors from './src/config/colors';
+import HomeStackScreen from './src/screens/HomeStackScreen/HomeStackScreen';
 
 const Tab = createBottomTabNavigator()
 export default function App() {
@@ -39,16 +39,11 @@ export default function App() {
         tabBarInactiveTintColor: colors.COLOR_PRIMARY_1_DARK,
 
       })}>
-        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Home" component={HomeStackScreen} />
         <Tab.Screen name="History" component={HistoryScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
-
-    // <View style={styles.container}>
-    //   {/* <Text>Open up App.js to start working on your app!</Text> */}
-    //   <StatusBar style="auto" />
-    // </View>
   );
 }
 

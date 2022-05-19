@@ -4,7 +4,8 @@ import React from 'react'
 import images from '../../config/images'
 import colors from '../../config/colors'
 
-const HomeScreen = () => {
+
+const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text>Hi Kim, how was your day?</Text>
@@ -12,9 +13,7 @@ const HomeScreen = () => {
         <Text style={{ fontSize: 24 }}>GRAPH</Text>
       </View>
       <TouchableNativeFeedback
-        onPress={() => {
-          console.log("AAAAAAAAAAAAAAAAAAAAAAA")
-        }}>
+        onPress={() => { navigation.navigate("Evaluate day") }}>
         <View style={styles.button} pointerEvents="box-only">
           <Text style={{ color: "white", fontSize: 18 }}>Evaluate your day</Text>
           <Image source={images.arrow}
