@@ -8,41 +8,20 @@ import HistoryScreen from './src/screens/HistoryScreen/HistoryScreen';
 import ProfileScreen from './src/screens/ProfileScreen/ProfileScreen';
 import colors from './src/config/colors';
 import HomeStackScreen from './src/screens/HomeStackScreen/HomeStackScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import TabNavigation from './src/screens/TabNavigation/TabNavigation';
+import EvaluateDayScreen from './src/screens/EvaluateDayScreen/EvaluateDayScreen';
 
 const Tab = createBottomTabNavigator()
+const Stack = createNativeStackNavigator()
+
 export default function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let icon
-
-          switch (route.name) {
-            case "Home":
-              icon = focused ? images.homeFilled : images.home
-              break
-            case "History":
-              icon = images.history
-              break
-            case "Profile":
-              icon = focused ? images.personFilled : images.person
-              break
-          }
-
-          return <Image source={icon}
-            style={{
-              width: size, 
-              height: size,
-              tintColor: focused ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK }} />
-        },
-        tabBarActiveTintColor: colors.COLOR_PRIMARY_1_DARK_2,
-        tabBarInactiveTintColor: colors.COLOR_PRIMARY_1_DARK,
-
-      })}>
-        <Tab.Screen name="Home" component={HomeStackScreen} />
-        <Tab.Screen name="History" component={HistoryScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-      </Tab.Navigator>
+    <NavigationContainer >
+      <Stack.Navigator screenOptions={{ headerShown: true }}>
+        <Stack.Screen name="Tab" component={TabNavigation} options={{ headerShown: false }}/>
+        <Stack.Screen name="Evaluate day" component={EvaluateDayScreen}/>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
