@@ -1,10 +1,10 @@
-import { TouchableNativeFeedback, Text, View } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid } from 'react-native'
 import styles from './styles'
 import React, { useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 
-const EvaluateDayScreen = () => {
+const EvaluateDayScreen = ({navigation}) => {
 
   const [simpleMoodValue, setSimpleMoodValue] = useState(null)
 
@@ -26,7 +26,10 @@ const EvaluateDayScreen = () => {
 
       </View>
       <TouchableNativeFeedback
-        onPress={() => { }}>
+        onPress={() => { 
+          ToastAndroid.show("You've evaluated [date]!", ToastAndroid.SHORT)
+          navigation.goBack()
+          }}>
         <View style={styles.bottomButton} pointerEvents="box-only">
           <Text style={[{ color: "white", fontSize: 20, fontWeight: "bold" }]}>Done</Text>
         </View>
