@@ -18,7 +18,9 @@ const HorizontalSelectCircles = (props, ref) => {
                         <TouchableOpacity
                             style={{ width: "100%", height: "100%", justifyContent: "center" }}
                             onPress={() => {
-                                setSelected(i)
+                                // Only for testing
+                                // setSelected(i)
+                                setSelected(i !== selected ? i : null)
                                 onPressItem ? onPressItem(i) : null
                             }}>
                         </TouchableOpacity>
