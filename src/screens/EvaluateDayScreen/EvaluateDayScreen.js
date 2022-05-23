@@ -12,6 +12,8 @@ import colors from '../../config/colors'
 import { Grid, YAxis, XAxis } from 'react-native-svg-charts'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
 import { Picker } from '@react-native-picker/picker'
+import { Slider } from '@miblanchard/react-native-slider'
+import * as shape from 'd3-shape'
 
 const EvaluateDayScreen = ({ navigation }) => {
 
@@ -22,15 +24,27 @@ const EvaluateDayScreen = ({ navigation }) => {
 
   const [selectedTimeFrom, setSelectedTimeFrom] = useState(0)
   const [selectedTimeTo, setSelectedTimeTo] = useState(0)
+  const [selectedMoodValue, setSelectedMoodValue] = useState(5)
+  const [moodValues, setMoodValues] = useState([])
 
   const contentInset = { top: 16, bottom: 24, }
   const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
 
   const pickerItems = () => (
     selectableTimeValues.map((t, i) => (
-      <Picker.Item label={`${(t < 10 ? "0" : "") + t}:00`} value={i} />
+      <Picker.Item label={`${(t < 10 ? "0" : "") + t}:00`} value={t} />
     ))
   )
+
+  useEffect(() => {
+    if (moodValues.length > 0) {
+      let newData = [...data]
+      moodValues.forEach((m, i) => {
+        newData[m.timeIndex] = m.value
+      })
+      setData(newData)
+    }
+  }, [moodValues])
 
   const storeData = async () => {
     try {
@@ -38,19 +52,19 @@ const EvaluateDayScreen = ({ navigation }) => {
       let note = "Jag åt en äcklig smörgås med kaviar på. Usch för i helvete vad äckligt det var, rekommenderas ej."
       let points = []
       if (simpleMoodValue) {
-        points.push({ "00:00": simpleMoodValue * 2.5 })
+        points.push(simpleMoodValue * 2.5)
         console.log(points);
       } else {
-        points.push({ "12:00": 5 }, { "13:00": 5 }, { "15:00": 5 }, { "20:00": 10 })
+        points = data
         console.log(points);
       }
       let obj = { note: note, points: points }
 
       AsyncStorage.setItem("2022-05-21", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-22", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-23", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-24", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-25", JSON.stringify(obj)).then(console.log("saved " + date))
+      // AsyncStorage.setItem("2022-05-22", JSON.stringify(obj)).then(console.log("saved " + date))
+      // AsyncStorage.setItem("2022-05-23", JSON.stringify(obj)).then(console.log("saved " + date))
+      // AsyncStorage.setItem("2022-05-24", JSON.stringify(obj)).then(console.log("saved " + date))
+      // AsyncStorage.setItem("2022-05-25", JSON.stringify(obj)).then(console.log("saved " + date))
     } catch (e) {
 
     }
@@ -100,13 +114,15 @@ const EvaluateDayScreen = ({ navigation }) => {
               gridMax={10}
               start={0}
               contentInset={contentInset}
+              curve={shape.curveBumpX}
               svg={{ fill: 'url(#gradient)' }}
             >
               <Line color={colors.COLOR_PRIMARY_1_DARK_2} />
               <Grid />
               <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
                 onDotPress={i => {
-                  console.log(i + " pressed")
+                  setSelectedTimeFrom(selectableTimeValues[i])
+                  setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
                   setShowAddMoodPeriodModal(true)
                 }} />
               <Defs>
@@ -131,38 +147,9 @@ const EvaluateDayScreen = ({ navigation }) => {
               index * 6 < 10 ? `0${index * 6}:00` : `${index * 6}:00`
             )}
             numberOfTicks={5} />
-          {/* </View> */}
-          {/* <LineChart
-            formatYLabel={(value) => parseInt(value)}
-            fromZero
-            bezier
-            yLabelsOffset={16}
-            xLabelsOffset={6}
-            segments={5}
-            width={chartWidth * 1.0}
-            height={256}
-            chartConfig={chartConfig}
-            data={{
-              labels: ["00:00", "06:00", "12:00", "18:00", "24:00"],
-              datasets: [
-                {
-                  data: [5,5,5,5,5],
-                  color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
-                },
-                // {
-                //   data: [5,5,5,5,5,],
-                //   color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
-                //   withDots: false
-                // },
-                {
-                  data: [10],
-                  withDots: false
-                }
-              ]
-            }}
-          /> */}
+
         </View>
-        <View style={{ height: 1000 }} />
+        {/* <View style={{ height: 1000 }} /> */}
       </ScrollView>
       <TouchableNativeFeedback
         onPress={() => {
@@ -180,18 +167,50 @@ const EvaluateDayScreen = ({ navigation }) => {
         onPressOutside={() => { setShowAddMoodPeriodModal(false) }}
         modalContent={
           <View>
-
+            <Text>From:</Text>
             <Picker selectedValue={selectedTimeFrom} onValueChange={item => setSelectedTimeFrom(item)}>
               {pickerItems()}
             </Picker>
+            <Text>To:</Text>
             <Picker selectedValue={selectedTimeTo} onValueChange={item => setSelectedTimeTo(item)}>
               {pickerItems()}
             </Picker>
+            <Text>How did you feel from 0-10?</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
 
+              <View style={{ flex: 1, }}>
+                <Slider
+                  maximumValue={10}
+                  step={1}
+                  value={selectedMoodValue}
+                  onValueChange={value => setSelectedMoodValue(value)} />
+              </View>
+              <Text style={{
+                fontSize: 18,
+                borderRadius: 8,
+                padding: 4,
+                marginLeft: 8,
+                borderWidth: 1,
+                borderColor: "#515050",
+                flex: 0.1,
+                textAlign: "center"
+              }}>{selectedMoodValue}</Text>
+            </View>
 
-            <View style={{ flexDirection: "row", marginTop: "auto", justifyContent: "flex-end" }}>
+            <View style={{ flexDirection: "row", marginTop: 16, justifyContent: "flex-end" }}>
               <Button title='cancel' onPress={() => setShowAddMoodPeriodModal(false)} />
-              <Button title='save' />
+              <Button title='save'
+                onPress={() => {
+                  let newMoodValues = []
+                  selectableTimeValues.forEach((t, i) => {
+                    if (t >= selectedTimeFrom && t <= selectedTimeTo) {
+                      newMoodValues.push({ timeIndex: i, value: parseInt(selectedMoodValue) })
+                    }
+                  })
+
+                  setMoodValues(newMoodValues)
+                  setShowAddMoodPeriodModal(false)
+                }} />
             </View>
           </View>
         }
