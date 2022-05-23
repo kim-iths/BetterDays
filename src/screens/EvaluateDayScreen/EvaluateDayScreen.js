@@ -11,6 +11,7 @@ import { Defs, LinearGradient, Stop } from 'react-native-svg'
 import colors from '../../config/colors'
 import { Grid, YAxis, XAxis } from 'react-native-svg-charts'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
+import { Picker } from '@react-native-picker/picker'
 
 const EvaluateDayScreen = ({ navigation }) => {
 
@@ -19,22 +20,17 @@ const EvaluateDayScreen = ({ navigation }) => {
   const [data, setData] = useState([5, 5, 5, 5, 5, 5, 5, 5, 5,])
   const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
 
+  const [selectedTimeFrom, setSelectedTimeFrom] = useState(0)
+  const [selectedTimeTo, setSelectedTimeTo] = useState(0)
+
   const contentInset = { top: 16, bottom: 24, }
   const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
 
-  // const chartConfig = {
-  //   backgroundGradientFromOpacity: 0,
-  //   backgroundGradientToOpacity: 0,
-  //   fillShadowGradientFrom: "#a4bef3",
-  //   fillShadowGradientFromOpacity: 1,
-  //   fillShadowGradientToOpacity: 0,
-  //   color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
-  //   propsForBackgroundLines:{}
-  // }
-
-  // useEffect(() => {
-
-  // }, [])
+  const pickerItems = () => (
+    selectableTimeValues.map((t, i) => (
+      <Picker.Item label={`${(t < 10 ? "0" : "") + t}:00`} value={i} />
+    ))
+  )
 
   const storeData = async () => {
     try {
@@ -184,6 +180,13 @@ const EvaluateDayScreen = ({ navigation }) => {
         onPressOutside={() => { setShowAddMoodPeriodModal(false) }}
         modalContent={
           <View>
+
+            <Picker selectedValue={selectedTimeFrom} onValueChange={item => setSelectedTimeFrom(item)}>
+              {pickerItems()}
+            </Picker>
+            <Picker selectedValue={selectedTimeTo} onValueChange={item => setSelectedTimeTo(item)}>
+              {pickerItems()}
+            </Picker>
 
 
             <View style={{ flexDirection: "row", marginTop: "auto", justifyContent: "flex-end" }}>
