@@ -3,6 +3,7 @@ import styles from './styles'
 import React, { useEffect, useState } from 'react'
 import images from '../../config/images'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import HistoryListItem from '../../components/HistoryListItem/HistoryListItem'
 
 const HistoryScreen = () => {
 
@@ -23,12 +24,9 @@ const HistoryScreen = () => {
 
             res.forEach(day => {
               let dayContent = JSON.parse(day[1])
-              // console.log(day)
 
               let totalScore = 0
-              dayContent.points.forEach(p => {
-                totalScore += parseFloat(Object.values(p))
-              })
+              dayContent.points.forEach(p => totalScore += p)
               let averageScore = totalScore / dayContent.points.length
 
               newDays.push({ date: day[0], info: dayContent, average: averageScore })
@@ -44,12 +42,7 @@ const HistoryScreen = () => {
   }
 
   const renderItem = ({ item }) => {
-    console.log(item);
-    return (<View style={{ backgroundColor: "white", padding: 16, borderRadius: 8, elevation: 4, marginTop: 8 }}>
-      <Text>{item.date}</Text>
-      <Text>{item.info.note}</Text>
-      <Text>{item.average}</Text>
-    </View>)
+    return <HistoryListItem date={item.date} note={item.info.note} average={item.average} />
   }
 
   return (
@@ -57,8 +50,6 @@ const HistoryScreen = () => {
       <View style={styles.container}>
         <Button title='get' onPress={getData} />
         <Button title='clear' onPress={() => AsyncStorage.clear()} />
-        {/* {days} */}
-        {console.log(days)}
       </View>
       <FlatList
       contentContainerStyle={{paddingHorizontal: 12, paddingBottom: 12}}
