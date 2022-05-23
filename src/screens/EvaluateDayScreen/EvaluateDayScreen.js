@@ -51,7 +51,7 @@ const EvaluateDayScreen = ({ navigation }) => {
       let date = "2022-05-22"
       let note = "Jag åt en äcklig smörgås med kaviar på. Usch för i helvete vad äckligt det var, rekommenderas ej."
       let points = []
-      if (simpleMoodValue) {
+      if (simpleMoodValue != null) {
         points.push(simpleMoodValue * 2.5)
         console.log(points);
       } else {
@@ -69,43 +69,38 @@ const EvaluateDayScreen = ({ navigation }) => {
       AsyncStorage.setItem("2022-05-27", JSON.stringify(obj)).then(console.log("saved " + date))
       AsyncStorage.setItem("2022-05-28", JSON.stringify(obj)).then(console.log("saved " + date))
     } catch (e) {
-      
+
     }
   }
 
   return (
-    <View style={{ justifyContent: "space-between", flex: 1 }}>
-      <ScrollView style={styles.container}>
-        <Text>Choose a generalized mood for today -</Text>
-        <HorizontalSelectCircles amount={5}
-          onPressItem={(i) => {
-            setSimpleMoodValue(i !== simpleMoodValue ? i : null)
-          }}
-          style={{ marginVertical: 12 }} />
-        <View style={styles.simpleMoodValueInfoContainer}>
-          <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
-          <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
-          <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        <Text style={styles.subtitleText}>Choose a generalized mood for today -</Text>
+        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, marginVertical: 8, }}>
+          <HorizontalSelectCircles amount={5}
+            onPressItem={(i) => {
+              setSimpleMoodValue(i !== simpleMoodValue ? i : null)
+            }}
+            style={{ marginVertical: 12 }} />
+          <View style={styles.simpleMoodValueInfoContainer}>
+            <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
+            <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
+            <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+          </View>
         </View>
-        <Text>- or select moments from your day that stood out</Text>
-        <View style={{
-          marginTop: 8,
-          borderRadius: 16,
-          paddingLeft: 8,
-          overflow: "hidden",
-          backgroundColor: "#515050",
-          paddingVertical: 12,
-        }} onLayout={(e) => {
+        <Text style={styles.subtitleText}>- or select moments from your day that stood out</Text>
+        <View style={styles.chartContainer} onLayout={(e) => {
           setChartWidth(e.nativeEvent.layout.width)
         }}>
-          <View style={{ flexDirection: "row", paddingRight: 16 }}>
+          <View style={{ flexDirection: "row", paddingRight: 24 }}>
             <YAxis
               contentInset={contentInset}
               min={0}
               max={10}
               data={data}
               svg={{
-                fill: 'white',
+                fill: colors.COLOR_PRIMARY_1_DARK_2,
                 fontSize: 14,
               }}
               numberOfTicks={5}
@@ -138,12 +133,12 @@ const EvaluateDayScreen = ({ navigation }) => {
           </View>
 
           <XAxis
-            contentInset={{ left: 24, right: 20 }}
+            contentInset={{ left: 24, right: 28 }}
             min={0}
             max={8}
             data={data}
             svg={{
-              fill: 'white',
+              fill: colors.COLOR_PRIMARY_1_DARK_2,
               fontSize: 14,
             }}
             formatLabel={(value, index) => (
@@ -152,7 +147,6 @@ const EvaluateDayScreen = ({ navigation }) => {
             numberOfTicks={5} />
 
         </View>
-        {/* <View style={{ height: 1000 }} /> */}
       </ScrollView>
       <TouchableNativeFeedback
         onPress={() => {
@@ -183,21 +177,14 @@ const EvaluateDayScreen = ({ navigation }) => {
 
               <View style={{ flex: 1, }}>
                 <Slider
+                  minimumTrackTintColor={colors.COLOR_PRIMARY_1_DARK_2}
+                  thumbTintColor={colors.COLOR_PRIMARY_1_DARK_2}
                   maximumValue={10}
                   step={1}
                   value={selectedMoodValue}
                   onValueChange={value => setSelectedMoodValue(value)} />
               </View>
-              <Text style={{
-                fontSize: 18,
-                borderRadius: 8,
-                padding: 4,
-                marginLeft: 8,
-                borderWidth: 1,
-                borderColor: "#515050",
-                flex: 0.1,
-                textAlign: "center"
-              }}>{selectedMoodValue}</Text>
+              <Text style={styles.sliderText}>{selectedMoodValue}</Text>
             </View>
 
             <View style={{ flexDirection: "row", marginTop: 16, justifyContent: "flex-end" }}>

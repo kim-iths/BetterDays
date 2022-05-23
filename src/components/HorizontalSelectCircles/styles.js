@@ -7,17 +7,19 @@ const styles = StyleSheet.create({
         // height: 48,
         // width: 48,
         flexDirection: "row",
-        justifyContent:"space-between"
+        justifyContent:"space-between",
     },
     circle: {
-        backgroundColor: "#515050",
+        // backgroundColor: colors.COLOR_PRIMARY_1_DARK_2,
         // flex: 1,
         height: 48,
         width: 48,
-        borderRadius: 100
+        borderRadius: 100,
+        borderWidth: 4,
+        borderColor: colors.COLOR_PRIMARY_1_DARK_2,
     },
     selected: {
-        backgroundColor: colors.COLOR_PRIMARY_2
+        backgroundColor: colors.COLOR_PRIMARY_1_DARK_2
     }
 })
 
