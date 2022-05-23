@@ -1,27 +1,40 @@
-import { TouchableNativeFeedback, Text, View, ToastAndroid, Dimensions } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid, Dimensions, ScrollView, Modal, Alert, Pressable, Button } from 'react-native'
 import styles from './styles'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { LineChart } from 'react-native-chart-kit'
+import { AreaChart } from 'react-native-svg-charts'
+import Line from '../../components/AreaChartAdds/Line'
+import Dots from '../../components/AreaChartAdds/Dots'
+import { Defs, LinearGradient, Stop } from 'react-native-svg'
+import colors from '../../config/colors'
+import { Grid, YAxis, XAxis } from 'react-native-svg-charts'
+import ModalCustom from '../../components/ModalCustom/ModalCustom'
 
 const EvaluateDayScreen = ({ navigation }) => {
 
   const [simpleMoodValue, setSimpleMoodValue] = useState(null)
   const [chartWidth, setChartWidth] = useState(0)
+  const [data, setData] = useState([5, 5, 5, 5, 5, 5, 5, 5, 5,])
+  const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
 
-  const chartConfig = {
-    backgroundGradientFromOpacity: 0,
-    backgroundGradientToOpacity: 0,
-    fillShadowGradientFrom: "#a4bef3",
-    fillShadowGradientFromOpacity: 1,
-    fillShadowGradientToOpacity: 0,
-    color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
-    // strokeWidth: 2,
-    barPercentage: 0.5,
-    useShadowColorFromDataset: false
-  }
+  const contentInset = { top: 16, bottom: 24, }
+  const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
+
+  // const chartConfig = {
+  //   backgroundGradientFromOpacity: 0,
+  //   backgroundGradientToOpacity: 0,
+  //   fillShadowGradientFrom: "#a4bef3",
+  //   fillShadowGradientFromOpacity: 1,
+  //   fillShadowGradientToOpacity: 0,
+  //   color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
+  //   propsForBackgroundLines:{}
+  // }
+
+  // useEffect(() => {
+
+  // }, [])
 
   const storeData = async () => {
     try {
@@ -49,7 +62,7 @@ const EvaluateDayScreen = ({ navigation }) => {
 
   return (
     <View style={{ justifyContent: "space-between", flex: 1 }}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text>Choose a generalized mood for today -</Text>
         <HorizontalSelectCircles amount={5}
           onPressItem={(i) => {
@@ -62,38 +75,99 @@ const EvaluateDayScreen = ({ navigation }) => {
           <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
         </View>
         <Text>- or select moments from your day that stood out</Text>
-        <Text>{simpleMoodValue}</Text>
-        <View style={{ borderWidth: 0, borderRadius: 16, overflow: "hidden", paddingTop: 12, backgroundColor: "#515050" }} onLayout={(e) => {
+        <View style={{
+          marginTop: 8,
+          borderRadius: 16,
+          paddingLeft: 8,
+          overflow: "hidden",
+          backgroundColor: "#515050",
+          paddingVertical: 12,
+        }} onLayout={(e) => {
           setChartWidth(e.nativeEvent.layout.width)
         }}>
-          <LineChart
-          withOuterLines={false}
+          <View style={{ flexDirection: "row", paddingRight: 16 }}>
+            <YAxis
+              contentInset={contentInset}
+              min={0}
+              max={10}
+              data={data}
+              svg={{
+                fill: 'white',
+                fontSize: 14,
+              }}
+              numberOfTicks={5}
+            />
+            <AreaChart
+              style={{ flex: 1, marginLeft: 8, height: 256 }}
+              data={data}
+              gridMin={0}
+              gridMax={10}
+              start={0}
+              contentInset={contentInset}
+              svg={{ fill: 'url(#gradient)' }}
+            >
+              <Line color={colors.COLOR_PRIMARY_1_DARK_2} />
+              <Grid />
+              <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
+                onDotPress={i => {
+                  console.log(i + " pressed")
+                  setShowAddMoodPeriodModal(true)
+                }} />
+              <Defs>
+                <LinearGradient id={'gradient'} x1={'0%'} y1={'0%'} x2={'0%'} y2={'100%'}>
+                  <Stop offset={'0%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={1} />
+                  <Stop offset={'100%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={0.1} />
+                </LinearGradient>
+              </Defs>
+            </AreaChart>
+          </View>
+
+          <XAxis
+            contentInset={{ left: 24, right: 20 }}
+            min={0}
+            max={8}
+            data={data}
+            svg={{
+              fill: 'white',
+              fontSize: 14,
+            }}
+            formatLabel={(value, index) => (
+              index * 6 < 10 ? `0${index * 6}:00` : `${index * 6}:00`
+            )}
+            numberOfTicks={5} />
+          {/* </View> */}
+          {/* <LineChart
+            formatYLabel={(value) => parseInt(value)}
             fromZero
             bezier
             yLabelsOffset={16}
             xLabelsOffset={6}
-            segments={4}
-            width={chartWidth * 1.1}
+            segments={5}
+            width={chartWidth * 1.0}
             height={256}
             chartConfig={chartConfig}
             data={{
               labels: ["00:00", "06:00", "12:00", "18:00", "24:00"],
               datasets: [
                 {
-                  data: [5,5,6,4,6.5],
+                  data: [5,5,5,5,5],
                   color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
-
                 },
+                // {
+                //   data: [5,5,5,5,5,],
+                //   color: (opacity = 1) => `rgba(164, 189, 245, ${opacity})`,
+                //   withDots: false
+                // },
                 {
                   data: [10],
                   withDots: false
                 }
               ]
             }}
-          />
-
+          /> */}
         </View>
-      </View>
+        <View style={{ height: 1000 }} />
+      </ScrollView>
       <TouchableNativeFeedback
         onPress={() => {
           ToastAndroid.show("You've evaluated [date]!", ToastAndroid.SHORT)
@@ -103,7 +177,23 @@ const EvaluateDayScreen = ({ navigation }) => {
           <Text style={[{ color: "white", fontSize: 20, fontWeight: "bold" }]}>Done</Text>
         </View>
       </TouchableNativeFeedback>
-    </View>
+
+      <ModalCustom
+        title="Add a mood"
+        visible={showAddMoodPeriodModal}
+        onPressOutside={() => { setShowAddMoodPeriodModal(false) }}
+        modalContent={
+          <View>
+
+
+            <View style={{ flexDirection: "row", marginTop: "auto", justifyContent: "flex-end" }}>
+              <Button title='cancel' onPress={() => setShowAddMoodPeriodModal(false)} />
+              <Button title='save' />
+            </View>
+          </View>
+        }
+      />
+    </View >
   )
 }
 
