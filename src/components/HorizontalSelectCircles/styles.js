@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
         justifyContent:"space-between"
     },
     circle: {
-        backgroundColor: "gray",
+        backgroundColor: "#515050",
         // flex: 1,
         height: 48,
         width: 48,
