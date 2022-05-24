@@ -1,6 +1,6 @@
-import { TouchableNativeFeedback, Text, View, ToastAndroid, Dimensions, ScrollView, Modal, Alert, Pressable, Button } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid, Dimensions, ScrollView, Modal, Alert, Pressable, Button, TextInput, Keyboard, KeyboardAvoidingView } from 'react-native'
 import styles from './styles'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -21,14 +21,19 @@ const EvaluateDayScreen = ({ navigation }) => {
   const [chartWidth, setChartWidth] = useState(0)
   const [data, setData] = useState([5, 5, 5, 5, 5, 5, 5, 5, 5,])
   const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [selectedTimeFrom, setSelectedTimeFrom] = useState(0)
   const [selectedTimeTo, setSelectedTimeTo] = useState(0)
   const [selectedMoodValue, setSelectedMoodValue] = useState(5)
   const [moodValues, setMoodValues] = useState([])
+  const [note, setNote] = useState("")
 
   const contentInset = { top: 16, bottom: 24, }
   const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
+
+  const TextInputRef = useRef()
+  const scrollViewRef = useRef()
 
   const pickerItems = () => (
     selectableTimeValues.map((t, i) => (
@@ -46,10 +51,24 @@ const EvaluateDayScreen = ({ navigation }) => {
     }
   }, [moodValues])
 
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  //Unfocuses the TextInput when the user press the back button
+  useEffect(() => {
+    if (TextInputRef.current.isFocused() && !keyboardVisible) Keyboard.dismiss()
+  }, [keyboardVisible])
+
   const storeData = async () => {
     try {
       let date = "2022-05-22"
-      let note = "Jag åt en äcklig smörgås med kaviar på. Usch för i helvete vad äckligt det var, rekommenderas ej."
       let points = []
       if (simpleMoodValue != null) {
         points.push(simpleMoodValue * 2.5)
@@ -68,16 +87,14 @@ const EvaluateDayScreen = ({ navigation }) => {
       AsyncStorage.setItem("2022-05-26", JSON.stringify(obj)).then(console.log("saved " + date))
       AsyncStorage.setItem("2022-05-27", JSON.stringify(obj)).then(console.log("saved " + date))
       AsyncStorage.setItem("2022-05-28", JSON.stringify(obj)).then(console.log("saved " + date))
-    } catch (e) {
-
-    }
+    } catch (e) { }
   }
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView style={styles.scrollView} ref={scrollViewRef}>
         <Text style={styles.subtitleText}>Choose a generalized mood for today -</Text>
-        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, marginVertical: 8, }}>
+        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
           <HorizontalSelectCircles amount={5}
             onPressItem={(i) => {
               setSimpleMoodValue(i !== simpleMoodValue ? i : null)
@@ -147,16 +164,38 @@ const EvaluateDayScreen = ({ navigation }) => {
             numberOfTicks={5} />
 
         </View>
+
+        <Text style={styles.subtitleText}>Write a note about today</Text>
+        <TextInput
+          placeholder='Optional'
+          ref={TextInputRef}
+          onFocus={() => { setKeyboardVisible(true) }}
+          style={{
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: colors.COLOR_DARK_GRAY,
+            width: "100%",
+            flex: 1,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            marginBottom: 16,
+            height: 100,
+            textAlignVertical: "top"
+          }}
+          onChangeText={setNote}
+        />
       </ScrollView>
-      <TouchableNativeFeedback
-        onPress={() => {
-          ToastAndroid.show("You've evaluated [date]!", ToastAndroid.SHORT)
-          storeData().then(navigation.goBack())
-        }}>
-        <View style={styles.bottomButton} pointerEvents="box-only">
-          <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign:"center" }}>Done</Text>
-        </View>
-      </TouchableNativeFeedback>
+      {!keyboardVisible ?
+        <TouchableNativeFeedback
+          onPress={() => {
+            ToastAndroid.show("You've evaluated [date]!", ToastAndroid.SHORT)
+            storeData().then(navigation.goBack())
+          }}>
+          <View style={styles.bottomButton} pointerEvents="box-only">
+            <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign: "center" }}>Done</Text>
+          </View>
+        </TouchableNativeFeedback>
+        : null}
 
       <ModalCustom
         title="Add a mood"

@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
         // backgroundColor:"white",
     },
     scrollView: {
-        padding: 12,
+        paddingHorizontal: 12,
     },
     simpleMoodValueInfoContainer: {
         flexDirection: "row",
@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
         flex: 1
     },
     chartContainer: {
-        marginTop: 8,
         borderRadius: 16,
         paddingLeft: 8,
         overflow: "hidden",
@@ -27,6 +26,8 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
     },
     bottomButton: {
+        // position: "absolute",
+        bottom: 0,
         height: 64,
         backgroundColor: colors.COLOR_PRIMARY_2,
         width: "100%",
@@ -34,7 +35,9 @@ const styles = StyleSheet.create({
         // alignItems: "center"
     },
     subtitleText: {
-        fontWeight:"bold",
+        marginTop: 12,
+        marginBottom: 12,
+        fontWeight: "bold",
         color: colors.COLOR_DARK_GRAY
     },
     sliderText: {
