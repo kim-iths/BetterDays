@@ -32,7 +32,7 @@ const EvaluateDayScreen = ({ navigation }) => {
 
   const pickerItems = () => (
     selectableTimeValues.map((t, i) => (
-      <Picker.Item label={`${(t < 10 ? "0" : "") + t}:00`} value={t} />
+      <Picker.Item key={i} label={`${(t < 10 ? "0" : "") + t}:00`} value={t} />
     ))
   )
 
@@ -154,7 +154,7 @@ const EvaluateDayScreen = ({ navigation }) => {
           storeData().then(navigation.goBack())
         }}>
         <View style={styles.bottomButton} pointerEvents="box-only">
-          <Text style={[{ color: "white", fontSize: 20, fontWeight: "bold" }]}>Done</Text>
+          <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign:"center" }}>Done</Text>
         </View>
       </TouchableNativeFeedback>
 

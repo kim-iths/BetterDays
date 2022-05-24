@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.COLOR_PRIMARY_2,
         width: "100%",
         justifyContent: "center",
-        alignItems: "center"
+        // alignItems: "center"
     },
     subtitleText: {
         fontWeight:"bold",
