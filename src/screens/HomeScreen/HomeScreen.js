@@ -13,7 +13,11 @@ const HomeScreen = ({ navigation }) => {
         <Text style={{ fontSize: 24 }}>GRAPH</Text>
       </View>
       <TouchableNativeFeedback
-        onPress={() => { navigation.navigate("Evaluate day") }}>
+        onPress={() => {
+          navigation.navigate("Evaluate day", {
+            //  selectedDate: "2022-05-20"
+          })
+        }}>
         <View style={styles.button} pointerEvents="box-only">
           <Text style={{ color: "white", fontSize: 18 }}>Evaluate your day</Text>
           <Image source={images.arrow}
