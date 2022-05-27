@@ -1,6 +1,6 @@
-import { TouchableNativeFeedback, Text, View, ToastAndroid, Dimensions, ScrollView, Modal, Alert, Pressable, Button } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, Button, TextInput, Keyboard } from 'react-native'
 import styles from './styles'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -15,24 +15,33 @@ import { Picker } from '@react-native-picker/picker'
 import { Slider } from '@miblanchard/react-native-slider'
 import * as shape from 'd3-shape'
 
-const EvaluateDayScreen = ({ navigation }) => {
+const EvaluateDayScreen = ({ route, navigation }) => {
 
-  const [simpleMoodValue, setSimpleMoodValue] = useState(null)
-  const [chartWidth, setChartWidth] = useState(0)
   const [data, setData] = useState([5, 5, 5, 5, 5, 5, 5, 5, 5,])
+  const [simpleMoodValue, setSimpleMoodValue] = useState(null)
+
+  const [selectedDate, setSelectedDate] = useState(route.params.selectedDate)
+  const [currentDate, setCurrentDate] = useState()
+  const isToday = !route.params.selectedDate
+
   const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const [selectedTimeFrom, setSelectedTimeFrom] = useState(0)
   const [selectedTimeTo, setSelectedTimeTo] = useState(0)
   const [selectedMoodValue, setSelectedMoodValue] = useState(5)
   const [moodValues, setMoodValues] = useState([])
+  const [note, setNote] = useState("")
 
   const contentInset = { top: 16, bottom: 24, }
   const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
 
+  const TextInputRef = useRef()
+  const scrollViewRef = useRef()
+
   const pickerItems = () => (
     selectableTimeValues.map((t, i) => (
-      <Picker.Item label={`${(t < 10 ? "0" : "") + t}:00`} value={t} />
+      <Picker.Item key={i} label={`${(t < 10 ? "0" : "") + t}:00`} value={t} />
     ))
   )
 
@@ -46,10 +55,28 @@ const EvaluateDayScreen = ({ navigation }) => {
     }
   }, [moodValues])
 
+  useEffect(() => {
+    setCurrentDate(getShortDate(new Date()))
+    console.log("is today? " + isToday);
+
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  //Unfocuses the TextInput when the user presses the back button
+  useEffect(() => {
+    if (TextInputRef.current.isFocused() && !keyboardVisible) Keyboard.dismiss()
+  }, [keyboardVisible])
+
   const storeData = async () => {
     try {
-      let date = "2022-05-22"
-      let note = "Jag åt en äcklig smörgås med kaviar på. Usch för i helvete vad äckligt det var, rekommenderas ej."
+      let date = isToday ? currentDate : selectedDate
+      console.log(date);
       let points = []
       if (simpleMoodValue != null) {
         points.push(simpleMoodValue * 2.5)
@@ -59,25 +86,22 @@ const EvaluateDayScreen = ({ navigation }) => {
         console.log(points);
       }
       let obj = { note: note, points: points }
+      console.log(obj);
 
-      AsyncStorage.setItem("2022-05-21", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-22", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-23", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-24", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-25", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-26", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-27", JSON.stringify(obj)).then(console.log("saved " + date))
-      AsyncStorage.setItem("2022-05-28", JSON.stringify(obj)).then(console.log("saved " + date))
-    } catch (e) {
-
-    }
+      await AsyncStorage.setItem(date, JSON.stringify(obj)).then(console.log("saved " + date))
+    } catch (e) { }
   }
+
+  const getShortDate = (date) => date.toISOString().slice(0, 10)
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <Text style={styles.subtitleText}>Choose a generalized mood for today -</Text>
-        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, marginVertical: 8, }}>
+      <ScrollView style={styles.scrollView} ref={scrollViewRef}>
+        <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 0 }]}>
+          Evaluating {isToday ? "today" : new Date(selectedDate).toDateString()}
+        </Text>
+        <Text style={styles.subtitleText}>Choose a generalized mood for {isToday ? "today" : "this day"} -</Text>
+        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
           <HorizontalSelectCircles amount={5}
             onPressItem={(i) => {
               setSimpleMoodValue(i !== simpleMoodValue ? i : null)
@@ -90,9 +114,7 @@ const EvaluateDayScreen = ({ navigation }) => {
           </View>
         </View>
         <Text style={styles.subtitleText}>- or select moments from your day that stood out</Text>
-        <View style={styles.chartContainer} onLayout={(e) => {
-          setChartWidth(e.nativeEvent.layout.width)
-        }}>
+        <View style={styles.chartContainer}>
           <View style={{ flexDirection: "row", paddingRight: 24 }}>
             <YAxis
               contentInset={contentInset}
@@ -147,16 +169,38 @@ const EvaluateDayScreen = ({ navigation }) => {
             numberOfTicks={5} />
 
         </View>
+
+        <Text style={styles.subtitleText}>Write a note about {isToday ? "today" : "this day"}</Text>
+        <TextInput
+          placeholder='Optional'
+          ref={TextInputRef}
+          onFocus={() => { setKeyboardVisible(true) }}
+          style={{
+            borderRadius: 16,
+            borderWidth: 1,
+            borderColor: colors.COLOR_DARK_GRAY,
+            width: "100%",
+            flex: 1,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            marginBottom: 16,
+            height: 100,
+            textAlignVertical: "top"
+          }}
+          onChangeText={setNote}
+        />
       </ScrollView>
-      <TouchableNativeFeedback
-        onPress={() => {
-          ToastAndroid.show("You've evaluated [date]!", ToastAndroid.SHORT)
-          storeData().then(navigation.goBack())
-        }}>
-        <View style={styles.bottomButton} pointerEvents="box-only">
-          <Text style={[{ color: "white", fontSize: 20, fontWeight: "bold" }]}>Done</Text>
-        </View>
-      </TouchableNativeFeedback>
+      {!keyboardVisible ?
+        <TouchableNativeFeedback
+          onPress={() => {
+            ToastAndroid.show(`You've evaluated ${selectedDate ? selectedDate : currentDate}!`, ToastAndroid.SHORT)
+            storeData().then(navigation.goBack())
+          }}>
+          <View style={styles.bottomButton} pointerEvents="box-only">
+            <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign: "center" }}>Done</Text>
+          </View>
+        </TouchableNativeFeedback>
+        : null}
 
       <ModalCustom
         title="Add a mood"
