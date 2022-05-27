@@ -68,7 +68,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
     };
   }, []);
 
-  //Unfocuses the TextInput when the user press the back button
+  //Unfocuses the TextInput when the user presses the back button
   useEffect(() => {
     if (TextInputRef.current.isFocused() && !keyboardVisible) Keyboard.dismiss()
   }, [keyboardVisible])
@@ -88,14 +88,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
       let obj = { note: note, points: points }
       console.log(obj);
 
-      AsyncStorage.setItem(date, JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-22", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-23", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-24", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-25", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-26", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-27", JSON.stringify(obj)).then(console.log("saved " + date))
-      // AsyncStorage.setItem("2022-05-28", JSON.stringify(obj)).then(console.log("saved " + date))
+      await AsyncStorage.setItem(date, JSON.stringify(obj)).then(console.log("saved " + date))
     } catch (e) { }
   }
 

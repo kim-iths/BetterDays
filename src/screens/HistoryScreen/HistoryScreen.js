@@ -16,20 +16,22 @@ const HistoryScreen = () => {
   const getData = async () => {
     try {
       let keys = await AsyncStorage.getAllKeys()
+      console.log(keys);
 
       let newDays = []
       await AsyncStorage.multiGet(keys)
         .then(res => {
+          console.log(res);
           if (res) {
 
             res.forEach(day => {
-              let dayContent = JSON.parse(day[1])
+              let info = JSON.parse(day[1])
 
               let totalScore = 0
-              dayContent.points.forEach(p => totalScore += p)
-              let averageScore = totalScore / dayContent.points.length
+              info.points.forEach(p => totalScore += p)
+              let averageScore = totalScore / info.points.length
 
-              newDays.push({ date: day[0], info: dayContent, average: averageScore })
+              newDays.push({ date: day[0], info: info, average: averageScore })
             })
 
             setDays(newDays)
@@ -37,7 +39,7 @@ const HistoryScreen = () => {
         })
 
     } catch (error) {
-
+      console.log(error);
     }
   }
 
@@ -46,15 +48,21 @@ const HistoryScreen = () => {
   }
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
       <View style={styles.container}>
         <Button title='get' onPress={getData} />
-        <Button title='clear' onPress={() => AsyncStorage.clear()} />
+        <Button title='clear' onPress={async () => {
+          try {
+            await AsyncStorage.clear()
+          } catch (e) {
+            console.log(error)
+          }
+        }} />
       </View>
       <FlatList
-      contentContainerStyle={{paddingHorizontal: 12, paddingBottom: 12}}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 12 }}
         renderItem={renderItem}
-        data={days}
+        data={days.reverse()}
         keyExtractor={item => item.date}
 
       />
