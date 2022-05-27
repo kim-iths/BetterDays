@@ -6,7 +6,7 @@ import colors from '../../config/colors'
 
 
 const HomeScreen = ({ navigation }) => {
-  const [dateInput, setDateInput] = useState()
+  const [dateInput, setDateInput] = useState("")
   return (
     <ScrollView style={styles.container}>
       <Text>Hi Kim, how was your day?</Text>
