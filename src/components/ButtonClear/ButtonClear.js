@@ -2,15 +2,15 @@ import { View, Text, TouchableNativeFeedback, Image } from 'react-native'
 import React from 'react'
 import styles from './styles'
 
-const ButtonClear = ({ buttonText, onPress, color, icon, style, iconStyle, textStyle, disabled }) => {
+const ButtonClear = ({ buttonText, onPress, color, icon, style, innerStyle, iconStyle, textStyle, disabled }) => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, style]}>
             <TouchableNativeFeedback
                 disabled={disabled}
                 background={TouchableNativeFeedback.Ripple(null, true)}
                 onPress={onPress}
             >
-                <View style={[style, styles.innerContainer]} pointerEvents="box-only">
+                <View style={[innerStyle, styles.innerContainer]} pointerEvents="box-only">
                     <Text style={[
                         { color: color ? color : null }, textStyle, styles.text, icon ? styles.textWithIcon : null]
                     }>{buttonText}</Text>
