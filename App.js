@@ -5,15 +5,17 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigation from './src/screens/TabNavigation/TabNavigation';
 import EvaluateDayScreen from './src/screens/EvaluateDayScreen/EvaluateDayScreen';
+import SettingsScreen from './src/screens/SettingsScreen/SettingsScreen.js';
 
 const Stack = createNativeStackNavigator()
 
 export default function App() {
   return (
-    <NavigationContainer >
-      <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <NavigationContainer>
+      <Stack.Navigator>
         <Stack.Screen name="Tab" component={TabNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="Evaluate day" component={EvaluateDayScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

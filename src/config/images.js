@@ -5,6 +5,7 @@ const images = {
     homeFilled: require("../assets/home_filled.png"),
     history: require("../assets/history.png"),
     historyAlt: require("../assets/history_alt.png"),
+    settings: require("../assets/settings.png"),
 
     arrow: require("../assets/arrow.png"),
     add: require("../assets/add.png"),
