@@ -7,6 +7,7 @@ const images = {
     historyAlt: require("../assets/history_alt.png"),
 
     arrow: require("../assets/arrow.png"),
+    add: require("../assets/add.png"),
 }
 
 export default images
