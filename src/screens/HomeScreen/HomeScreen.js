@@ -1,6 +1,6 @@
 import { TouchableNativeFeedback, Text, View, Image, TextInput, ScrollView } from 'react-native'
 import styles from './styles'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import images from '../../config/images'
 import colors from '../../config/colors'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
@@ -12,20 +12,54 @@ import * as shape from 'd3-shape'
 import Dots from '../../components/AreaChartAdds/Dots'
 import Line from '../../components/AreaChartAdds/Line'
 import { Grid } from 'react-native-svg-charts'
-
+import { XAxis } from 'react-native-svg-charts'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import moment from 'moment'
 
 const HomeScreen = ({ navigation }) => {
   const [dateInput, setDateInput] = useState("")
   const [showSelectDateModal, setShowSelectDateModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState("")
 
-  const [data, setData] = useState([5, 3, 7, 4, 8, 5, 6])
+  const [data, setData] = useState([5, 3, 5, null, 8, 5, 6])
   const contentInset = { top: 16, bottom: 24, }
 
   const dismissModal = () => {
     setShowSelectDateModal(false)
     setSelectedDate("")
   }
+
+  //Get last week's averages
+  useEffect(() => {
+    let today = getShortDate(moment())
+    let pastWeek = [today]
+    for (let i = 0; i < 6; i++) {
+      pastWeek.push(getShortDate(moment(today).subtract(i, "d")))
+    }
+
+    try {
+      AsyncStorage.multiGet(pastWeek.reverse()).then(resp => {
+
+        let newData = resp.map(d => {
+          //Get average score of each day, null if it isn't evaluated
+          if (d[1]) {
+            let info = JSON.parse(d[1])
+
+            let totalScore = 0
+            info.points.forEach(p => totalScore += p)
+
+            return totalScore / info.points.length
+          } else return null
+        })
+
+        setData(newData)
+      })
+    } catch (error) {
+
+    }
+  }, [])
+
+  const getShortDate = (date) => date.toISOString().slice(0, 10)
 
   return (
     <ScrollView style={styles.container}>
@@ -51,14 +85,38 @@ const HomeScreen = ({ navigation }) => {
             gridMin={0}
             gridMax={10}
             start={0}
+
             contentInset={contentInset}
             curve={shape.curveBumpX}
-            svg={{ stroke: colors.COLOR_PRIMARY_1_DARK_2, strokeWidth: 10 }}
+            svg={{ stroke: colors.COLOR_PRIMARY_1_DARK_2, strokeWidth: 10, }}
           >
             <Grid />
+            <Dots color={colors.COLOR_PRIMARY_1_DARK_2} />
+
           </LineChart>
         </View>
+        <XAxis
+          contentInset={{ left: 24, right: 24 }}
+          min={0}
+          max={6}
+          data={data}
+          svg={{
+            fill: colors.COLOR_PRIMARY_1_DARK_2,
+            fontSize: 14,
+          }}
+          formatLabel={(value, index) => {
+            let today = getShortDate(moment())
 
+            let pastWeekDays = []
+            for (let i = 0; i < 7; i++) {
+              pastWeekDays.push((moment(today).subtract(i, "d").isoWeekday()))
+            }
+            pastWeekDays.reverse()
+            const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+            return days[pastWeekDays[index]-1]
+          }}
+        />
       </View>
       <TouchableNativeFeedback
         onPress={() => {
