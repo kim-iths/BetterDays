@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     },
     noteText: {
         marginTop: 6,
-        fontStyle: "italic",
+        // fontStyle: "italic",
     },
     averageValueText: {
         marginTop: 6,

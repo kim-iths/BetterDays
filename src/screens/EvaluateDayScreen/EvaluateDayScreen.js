@@ -20,8 +20,8 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   const [data, setData] = useState([5, 5, 5, 5, 5, 5, 5, 5, 5,])
   const [simpleMoodValue, setSimpleMoodValue] = useState(null)
 
-  const [selectedDate, setSelectedDate] = useState(route.params.selectedDate)
   const [currentDate, setCurrentDate] = useState()
+  const selectedDate = route.params.selectedDate
   const isToday = !route.params.selectedDate
 
   const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
