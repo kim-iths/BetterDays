@@ -1,4 +1,4 @@
-import { FlatList, Image, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native'
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, Touchable, TouchableNativeFeedback, View } from 'react-native'
 import styles from './styles'
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import images from '../../config/images'
@@ -10,6 +10,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [selectedReminder, setSelectedReminder] = useState(null)
+  const [isSelectedReminderEnabled, setIsSelectedReminderEnabled] = useState(true)
 
   const [infoTextViews, setInfoTextViews] = useState([])
   const [reminders, setReminders] = useState([])
@@ -108,7 +109,36 @@ const ProfileScreen = ({ navigation }) => {
         onPressOutside={() => dismissModal()}
         modalContent={
           <View>
+            <Text>Title</Text>
+            <TextInput
+              style={{ borderWidth: 1, borderColor: "lightgray", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}
+              placeholder='Required' />
+            <Text>Time</Text>
 
+            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              <Text>Enabled</Text>
+              <Pressable onPress={() => setIsSelectedReminderEnabled(!isSelectedReminderEnabled)}>
+                <View
+                  style={[{
+                    width: 32,
+                    height: 32,
+                    borderColor: "lightgray",
+                    borderWidth: 2,
+                    borderRadius: 8
+                  },
+                  isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]} />
+              </Pressable>
+            </View>
+            <View style={{ flexDirection: "row", marginTop: 16 }}>
+              <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
+              <Button buttonText={selectedReminder == null ? "Add" : "Save"} color={colors.COLOR_PRIMARY_1_DARK_2}
+                onPress={() => {
+
+                  dismissModal()
+                  ToastAndroid.show("Reminder added!", ToastAndroid.SHORT)
+                }} />
+
+            </View>
           </View>
         }
       />

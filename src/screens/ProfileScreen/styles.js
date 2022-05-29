@@ -21,6 +21,12 @@ const styles = StyleSheet.create({
         marginLeft:8,
         
     },
+    modalNotificationEnabled: {
+        
+    },
+    modalNotificationDisabled: {
+        backgroundColor:colors.COLOR_PRIMARY_1
+    }
 
 })
 
