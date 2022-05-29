@@ -5,12 +5,11 @@ import images from '../../config/images'
 import colors from '../../config/colors'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
 import CalendarPicker from 'react-native-calendar-picker';
-import ButtonClear from '../../components/ButtonClear/ButtonClear'
+import Button from '../../components/Button/Button'
 import { YAxis } from 'react-native-svg-charts'
 import { LineChart } from 'react-native-svg-charts'
 import * as shape from 'd3-shape'
 import Dots from '../../components/AreaChartAdds/Dots'
-import Line from '../../components/AreaChartAdds/Line'
 import { Grid } from 'react-native-svg-charts'
 import { XAxis } from 'react-native-svg-charts'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -114,22 +113,22 @@ const HomeScreen = ({ navigation }) => {
             pastWeekDays.reverse()
             const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
-            return days[pastWeekDays[index]-1]
+            return days[pastWeekDays[index] - 1]
           }}
         />
       </View>
-      <TouchableNativeFeedback
-        onPress={() => {
-          navigation.navigate("Evaluate day", {})
-        }}>
-        <View style={styles.button} pointerEvents="box-only">
-          <Text style={{ color: "white", fontSize: 18 }}>Evaluate your day</Text>
-          <Image source={images.arrow}
-            style={{ width: 36, height: 36, tintColor: "white" }} />
-        </View>
-      </TouchableNativeFeedback>
 
-      <ButtonClear buttonText={"Choose other date to evaluate"} icon={images.add} color={colors.COLOR_PRIMARY_1_DARK_2}
+      <Button buttonText={"Evaluate your day"}
+        icon={images.arrow}
+        color={colors.COLOR_PRIMARY_2}
+        iconStyle={{ width: 36, height: 36 }}
+        style={{ marginTop: 16, elevation: 4 }}
+        filled
+        onPress={() => navigation.navigate("Evaluate day", {})} />
+
+      <Button buttonText={"Choose other date to evaluate"}
+        icon={images.add}
+        color={colors.COLOR_PRIMARY_1_DARK_2}
         style={{ marginTop: 16 }}
         onPress={() => setShowSelectDateModal(true)} />
 
@@ -150,10 +149,10 @@ const HomeScreen = ({ navigation }) => {
 
             <View style={{ flexDirection: "row", justifyContent: "flex-end", marginTop: 16 }}>
 
-              <ButtonClear buttonText={"Cancel"} color={colors.COLOR_CANCEL}
+              <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL}
                 onPress={() => dismissModal()} />
 
-              <ButtonClear buttonText={"Continue"}
+              <Button buttonText={"Continue"}
                 color={selectedDate != "" ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
                 disabled={selectedDate == ""}
                 onPress={() => {
