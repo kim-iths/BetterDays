@@ -1,6 +1,6 @@
 import { TouchableNativeFeedback, Text, View, Image, TextInput, ScrollView } from 'react-native'
 import styles from './styles'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useLayoutEffect } from 'react'
 import images from '../../config/images'
 import colors from '../../config/colors'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
@@ -23,17 +23,34 @@ const HomeScreen = ({ navigation }) => {
   const [data, setData] = useState([5, 3, 5, null, 8, 5, 6])
   const contentInset = { top: 16, bottom: 24, }
 
+
+  //Only for testing
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableNativeFeedback
+          useForeground
+          background={TouchableNativeFeedback.Ripple(null, true, 24)}
+          onPress={() => getAverages()}
+        >
+          <View style={{ marginRight: 8, padding: 8 }} pointerEvents="box-only">
+            <Image source={images.refresh} style={{ width: 24, height: 24 }} />
+          </View>
+        </TouchableNativeFeedback>
+      )
+    })
+  })
+
   const dismissModal = () => {
     setShowSelectDateModal(false)
     setSelectedDate("")
   }
 
-  //Get last week's averages
-  useEffect(() => {
+  const getAverages = () => {
     let today = getShortDate(moment())
     let pastWeek = [today]
     for (let i = 0; i < 6; i++) {
-      pastWeek.push(getShortDate(moment(today).subtract(i, "d")))
+      pastWeek.push(getShortDate(moment(today).subtract(i + 1, "d")))
     }
 
     try {
@@ -50,12 +67,16 @@ const HomeScreen = ({ navigation }) => {
             return totalScore / info.points.length
           } else return null
         })
-
+        
         setData(newData)
       })
     } catch (error) {
 
     }
+  }
+  //Get last week's averages
+  useEffect(() => {
+    getAverages()
   }, [])
 
   const getShortDate = (date) => date.toISOString().slice(0, 10)
