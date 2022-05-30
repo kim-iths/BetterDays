@@ -9,7 +9,7 @@ const Dots = ({ x, y, data, color, onDotPress }) => {
                     cx={x(index)}
                     cy={y(value)}
                     r={5}
-                    onPress={() => { onDotPress(index) }}
+                    onPress={() => { onDotPress ? onDotPress(index) : null}}
                     stroke={'rgb(0, 0, 0, 0)'}
                     strokeWidth={20}
                     fill={value != null ? (color ? color : "white") : "transparent"}

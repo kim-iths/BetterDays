@@ -5,12 +5,18 @@ import images from '../../config/images'
 import colors from '../../config/colors'
 import Button from '../../components/Button/Button'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
+import DatePicker from 'react-native-date-picker'
 
 const ProfileScreen = ({ navigation }) => {
 
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [selectedReminder, setSelectedReminder] = useState(null)
+
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [selectedReminderDate, setSelectedReminderDate] = useState(new Date())
+  const [selectedReminderTitle, setSelectedReminderTitle] = useState("")
   const [isSelectedReminderEnabled, setIsSelectedReminderEnabled] = useState(true)
+
 
   const [infoTextViews, setInfoTextViews] = useState([])
   const [reminders, setReminders] = useState([])
@@ -75,6 +81,9 @@ const ProfileScreen = ({ navigation }) => {
   const dismissModal = () => {
     setShowReminderModal(false)
     setSelectedReminder(null)
+    setSelectedReminderTitle("")
+    setSelectedReminderDate(new Date())
+    setIsSelectedReminderEnabled(true)
   }
 
   return (
@@ -84,6 +93,7 @@ const ProfileScreen = ({ navigation }) => {
         {infoTextViews}
       </View>
       <View style={{ backgroundColor: "white", padding: 12, borderRadius: 8, marginTop: 16 }}>
+        {/* Creates list of reminders */}
         {reminders.map((r, i) => (
           <Button key={i}
             buttonText={`${r.title} - ${r.time}`}
@@ -91,8 +101,17 @@ const ProfileScreen = ({ navigation }) => {
             color={colors.COLOR_PRIMARY_2}
             style={{ marginBottom: 8 }}
             onPress={() => {
+              let reminderTime = new Date()
+              reminderTime.setHours(parseInt(r.time.slice(0, 3)))
+              reminderTime.setMinutes(parseInt(r.time.slice(3, 5)))
+
               setShowReminderModal(true)
               setSelectedReminder(i)
+
+              setIsSelectedReminderEnabled(i.enabled)
+              setSelectedReminderTitle(r.title)
+              setSelectedReminderDate(reminderTime)
+
             }} />
         ))}
 
@@ -109,13 +128,29 @@ const ProfileScreen = ({ navigation }) => {
         onPressOutside={() => dismissModal()}
         modalContent={
           <View>
-            <Text>Title</Text>
+            <Text style={styles.reminderSubHeader}>Title</Text>
             <TextInput
-              style={{ borderWidth: 1, borderColor: "lightgray", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 8 }}
-              placeholder='Required' />
-            <Text>Time</Text>
-
-            <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+              value={selectedReminderTitle}
+              style={styles.textInput}
+              placeholder='Required'
+              onChangeText={setSelectedReminderTitle} />
+            <Text style={styles.reminderSubHeader}>Time</Text>
+            <View style={styles.row}>
+              <Button buttonText={selectedReminderDate.toLocaleTimeString().slice(0, 5)} onPress={() => setShowDatePicker(true)} flex filled color={colors.COLOR_PRIMARY_1} />
+            </View>
+            <DatePicker
+              is24hourSource='locale'
+              locale='sv-se'
+              mode='time'
+              modal
+              open={showDatePicker}
+              date={selectedReminderDate}
+              onConfirm={(date) => {
+                setShowDatePicker(false)
+                setSelectedReminderDate(date)
+              }}
+              onCancel={() => setShowDatePicker(false)} />
+            <View style={[styles.row, { marginTop: 24 }]}>
               <Text>Enabled</Text>
               <Pressable onPress={() => setIsSelectedReminderEnabled(!isSelectedReminderEnabled)}>
                 <View
@@ -129,13 +164,27 @@ const ProfileScreen = ({ navigation }) => {
                   isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]} />
               </Pressable>
             </View>
-            <View style={{ flexDirection: "row", marginTop: 16 }}>
+            <View style={styles.buttonRow}>
               <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
-              <Button buttonText={selectedReminder == null ? "Add" : "Save"} color={colors.COLOR_PRIMARY_1_DARK_2}
+              <Button buttonText={selectedReminder == null ? "Add" : "Save"}
+                color={selectedReminderTitle ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
+                disabled={!selectedReminderTitle}
                 onPress={() => {
 
+                  console.log("add")
+                  let newReminders = reminders
+                  let time = selectedReminderDate.toLocaleTimeString().slice(0, 3) + selectedReminderDate.toLocaleTimeString().slice(3, 5)
+
+                  if (!selectedReminder) { //New reminder
+                    newReminders.push({ title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled })
+                  } else { //Editing reminder
+                    newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled }
+                  }
+
+                  setReminders(newReminders)
+
                   dismissModal()
-                  ToastAndroid.show("Reminder added!", ToastAndroid.SHORT)
+                  ToastAndroid.show(selectedReminderTitle + (selectedReminder ? " saved!" : " added!"), ToastAndroid.SHORT)
                 }} />
 
             </View>
