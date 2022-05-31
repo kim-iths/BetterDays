@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "transparent",
         borderRadius: 8,
-        flex: 1,
+        // flex: 1,
     },
     innerContainer: {
         paddingHorizontal: 16,
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     text: {
         fontWeight: "bold",
         fontSize: 16,
-        flex: 1,
+        // flex: 1,
         textAlign: "center",
     },
     textWithIcon:{

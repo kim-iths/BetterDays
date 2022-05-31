@@ -1,9 +1,11 @@
-import { Button, FlatList, Image, Text, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import styles from './styles'
 import React, { useEffect, useState } from 'react'
 import images from '../../config/images'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import HistoryListItem from '../../components/HistoryListItem/HistoryListItem'
+import Button from '../../components/Button/Button'
+import colors from '../../config/colors'
 
 const HistoryScreen = () => {
 
@@ -16,7 +18,14 @@ const HistoryScreen = () => {
   const getData = async () => {
     try {
       let keys = await AsyncStorage.getAllKeys()
-      console.log(keys);
+
+      //Prevents trying to load user info and reminders in the history list
+      let userInfoPos = keys.indexOf("@userInfo")
+      if (userInfoPos != -1) keys.splice(userInfoPos, 1)
+      let remindersPos = keys.indexOf("@reminders")
+      if (remindersPos != -1) keys.splice(remindersPos, 1)
+
+      console.log(keys)
 
       let newDays = []
       await AsyncStorage.multiGet(keys)
@@ -50,14 +59,15 @@ const HistoryScreen = () => {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Button title='get' onPress={getData} />
-        <Button title='clear' onPress={async () => {
-          try {
-            await AsyncStorage.clear()
-          } catch (e) {
-            console.log(error)
-          }
-        }} />
+        <Button buttonText={"Get"} textStyle={{ flex: 1 }} onPress={getData} color={colors.COLOR_PRIMARY_1_DARK_2} />
+        <Button buttonText={"Clear"} textStyle={{ flex: 1 }} color={colors.COLOR_CANCEL}
+          onPress={async () => {
+            try {
+              await AsyncStorage.clear().then(getData())
+            } catch (e) {
+              console.log(error)
+            }
+          }} />
       </View>
       <FlatList
         contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 12 }}
