@@ -10,7 +10,7 @@ const Button = ({ buttonText, onPress, color, icon, style, innerStyle, iconStyle
                 background={TouchableNativeFeedback.Ripple(null, true)}
                 onPress={onPress}
             >
-                <View style={[innerStyle, styles.innerContainer, { backgroundColor: filled ? (color ? color : "gray") : "transparent" }]}
+                <View style={[styles.innerContainer, { backgroundColor: filled ? (color ? color : "gray") : "transparent" }, innerStyle]}
                     pointerEvents="box-only">
                     <Text style={[
                         { color: filled ? "white" : (color ? color : null), flex: flex ? 1 : 0 },

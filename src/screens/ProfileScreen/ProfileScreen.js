@@ -6,8 +6,13 @@ import colors from '../../config/colors'
 import Button from '../../components/Button/Button'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
 import DatePicker from 'react-native-date-picker'
+import moment from 'moment'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const ProfileScreen = ({ navigation }) => {
+
+  //Reminders
+  const [reminders, setReminders] = useState([])
 
   const [showReminderModal, setShowReminderModal] = useState(false)
   const [selectedReminder, setSelectedReminder] = useState(null)
@@ -17,9 +22,17 @@ const ProfileScreen = ({ navigation }) => {
   const [selectedReminderTitle, setSelectedReminderTitle] = useState("")
   const [isSelectedReminderEnabled, setIsSelectedReminderEnabled] = useState(true)
 
-
+  //Info
   const [infoTextViews, setInfoTextViews] = useState([])
-  const [reminders, setReminders] = useState([])
+  const [info, setInfo] = useState({})
+  const [name, setName] = useState("Kim")
+  const [birthday, setBirthday] = useState(new Date("2000-01-01"))
+  const [phone, setPhone] = useState("073 268 73 75")
+  const [address, setAddress] = useState("Svetsarvägen 3")
+
+  const [showInfoModal, setShowInfoModal] = useState(false)
+  const [showBirthdayPicker, setShowBirthdayPicker] = useState(false)
+
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -38,35 +51,45 @@ const ProfileScreen = ({ navigation }) => {
   })
 
   useEffect(() => {
-    populateInfoTexts()
     setMockReminders()
-
+    // setInfo({ name: name, birthday: birthday, phone: phone, address: address })
+    // populateInfoTexts()
+    getData()
+    console.log(info);
   }, [])
 
-  const populateInfoTexts = () => {
-    let views = []
-    for (let i = 0; i < 3; i++) {
-      let icon, text
-      switch (i) {
-        case 0:
-          icon = images.cake
-          text = "25 May 1999"
-          break
-        case 1:
-          icon = images.phone
-          text = "073 268 73 75"
-          break
-        case 2:
-          icon = images.home
-          text = "Svetsarvägen 3"
-          break
-      }
-      views.push(<View style={styles.infoContainer} key={i}>
+  const storeData = (info) => {
+    try {
+      let data = JSON.stringify(info)
+      AsyncStorage.setItem("@userInfo", data).then(() => {
+        getData()
+        ToastAndroid.show("Profile updated", ToastAndroid.SHORT)
+      })
+    } catch (error) {
+
+    }
+  }
+  const getData = () => {
+    try {
+      AsyncStorage.getItem("@userInfo").then(res => {
+        if (res != null) {
+          let data = JSON.parse(res)
+          data.birthday = data.birthday ? new Date(data.birthday) : ""
+          setInfo(data)
+        }
+      })
+    } catch (error) {
+
+    }
+  }
+
+  const InfoText = ({ text, icon }) => {
+    return (
+      <View style={styles.infoContainer}>
         <Image source={icon} style={{ width: 24, height: 24, tintColor: colors.COLOR_PRIMARY_1_DARK }} />
         <Text style={styles.infoText}>{text}</Text>
-      </View>)
-    }
-    setInfoTextViews(views)
+      </View>
+    )
   }
 
   const setMockReminders = () => {
@@ -80,17 +103,161 @@ const ProfileScreen = ({ navigation }) => {
 
   const dismissModal = () => {
     setShowReminderModal(false)
+    setShowInfoModal(false)
     setSelectedReminder(null)
     setSelectedReminderTitle("")
     setSelectedReminderDate(new Date())
     setIsSelectedReminderEnabled(true)
   }
 
+  const reminderModal = () => (
+    <ModalCustom
+      visible={showReminderModal}
+      title={selectedReminder != null ? "Edit reminder" : "Create reminder"}
+      onPressOutside={() => dismissModal()}
+      modalContent={
+        <View>
+          <Text style={styles.reminderSubHeader}>Title</Text>
+          <TextInput
+            value={selectedReminderTitle}
+            style={styles.textInput}
+            placeholder='Required'
+            onChangeText={setSelectedReminderTitle} />
+          <Text style={styles.reminderSubHeader}>Time</Text>
+          <View style={styles.row}>
+            <Button buttonText={selectedReminderDate.toLocaleTimeString().slice(0, 5)} onPress={() => setShowDatePicker(true)} flex filled color={colors.COLOR_PRIMARY_1} />
+          </View>
+          <DatePicker
+            is24hourSource='locale'
+            locale='sv-se'
+            mode='time'
+            modal
+            open={showDatePicker}
+            date={selectedReminderDate}
+            onConfirm={(date) => {
+              setShowDatePicker(false)
+              setSelectedReminderDate(date)
+            }}
+            onCancel={() => setShowDatePicker(false)} />
+          <View style={[styles.row, { marginTop: 24 }]}>
+            <Text>Enabled</Text>
+            <Pressable onPress={() => setIsSelectedReminderEnabled(!isSelectedReminderEnabled)}>
+              <View
+                style={[{
+                  width: 32,
+                  height: 32,
+                  borderColor: "lightgray",
+                  borderWidth: 2,
+                  borderRadius: 8
+                },
+                isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]} />
+            </Pressable>
+          </View>
+          <View style={styles.buttonRow}>
+            <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
+            <Button buttonText={selectedReminder == null ? "Add" : "Save"}
+              color={selectedReminderTitle ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
+              disabled={!selectedReminderTitle}
+              onPress={() => {
+
+                let newReminders = reminders
+                let time = selectedReminderDate.toLocaleTimeString().slice(0, 3) + selectedReminderDate.toLocaleTimeString().slice(3, 5)
+
+                if (!selectedReminder) { //New reminder
+                  newReminders.push({ title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled })
+                } else { //Editing reminder
+                  newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled }
+                }
+
+                setReminders(newReminders)
+
+                dismissModal()
+                ToastAndroid.show(selectedReminderTitle + (selectedReminder ? " saved!" : " added!"), ToastAndroid.SHORT)
+              }} />
+
+          </View>
+        </View>
+      }
+    />
+  )
+
+  const infoModal = () => (
+    <ModalCustom
+      visible={showInfoModal}
+      title="Edit info"
+      onPressOutside={() => dismissModal()}
+      modalContent={
+        <View>
+          <Text style={styles.reminderSubHeader}>Name</Text>
+          <TextInput style={styles.textInput}
+            value={name}
+            onChangeText={setName}
+            placeholder="Optional" />
+          <Text style={styles.reminderSubHeader}>Birthday</Text>
+          <View style={{ flexDirection: "row" }}>
+            <Button buttonText={birthday.toDateString()} flex filled color={colors.COLOR_PRIMARY_2}
+              onPress={() => setShowBirthdayPicker(true)} />
+          </View>
+          <DatePicker
+            modal
+            mode='date'
+            open={showBirthdayPicker}
+            date={birthday}
+            onCancel={() => setShowBirthdayPicker(false)}
+            onConfirm={(date) => {
+              setBirthday(date)
+              setShowBirthdayPicker(false)
+            }}
+          />
+
+          <Text style={styles.reminderSubHeader}>Phone</Text>
+          <TextInput style={styles.textInput}
+            maxLength={15}
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+            placeholder="Optional" />
+          <Text style={styles.reminderSubHeader}>Address</Text>
+          <TextInput style={styles.textInput}
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Optional" />
+
+          <View style={styles.buttonRow}>
+            <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
+            <Button buttonText={"Save"}
+              color={name ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
+              onPress={() => {
+                storeData({ name: name, birthday: birthday, phone: phone, address: address })
+                dismissModal()
+              }} />
+
+          </View>
+        </View>
+      }
+    />
+  )
+
   return (
     <ScrollView style={styles.container}>
-      <View style={{ backgroundColor: "white", padding: 12, borderRadius: 8, }}>
-        <Text style={styles.nameText}>Kim, 23</Text>
-        {infoTextViews}
+      <View style={[styles.info, {paddingBottom:  Object.keys(info).length != 0 ? 16 : null}]}>
+        <View style={[styles.row, { marginLeft: 8 }]}>
+          <Text style={styles.nameText}>
+            {info.name ? info.name : "New user"}
+            {info.birthday ? (", " + moment().diff(info.birthday.toISOString(), "years")) : ""}
+          </Text>
+          <Button icon={images.edit} innerStyle={{ paddingHorizontal: 8, paddingVertical: 8 }}
+            onPress={() => {
+              setName(info.name)
+              setPhone(info.phone)
+              setAddress(info.address)
+              setShowInfoModal(true)
+            }} />
+        </View>
+        {info.birthday ? <InfoText text={info.birthday.toDateString().slice(4)} icon={images.cake} /> : null}
+        {info.phone ? <InfoText text={info.phone} icon={images.phone} /> : null}
+        {info.address ? <InfoText text={info.address} icon={images.address} /> : null}
+
       </View>
       <View style={{ backgroundColor: "white", padding: 12, borderRadius: 8, marginTop: 16 }}>
         {/* Creates list of reminders */}
@@ -122,75 +289,9 @@ const ProfileScreen = ({ navigation }) => {
           onPress={() => setShowReminderModal(true)} />
       </View>
 
-      <ModalCustom
-        visible={showReminderModal}
-        title={selectedReminder != null ? "Edit reminder" : "Create reminder"}
-        onPressOutside={() => dismissModal()}
-        modalContent={
-          <View>
-            <Text style={styles.reminderSubHeader}>Title</Text>
-            <TextInput
-              value={selectedReminderTitle}
-              style={styles.textInput}
-              placeholder='Required'
-              onChangeText={setSelectedReminderTitle} />
-            <Text style={styles.reminderSubHeader}>Time</Text>
-            <View style={styles.row}>
-              <Button buttonText={selectedReminderDate.toLocaleTimeString().slice(0, 5)} onPress={() => setShowDatePicker(true)} flex filled color={colors.COLOR_PRIMARY_1} />
-            </View>
-            <DatePicker
-              is24hourSource='locale'
-              locale='sv-se'
-              mode='time'
-              modal
-              open={showDatePicker}
-              date={selectedReminderDate}
-              onConfirm={(date) => {
-                setShowDatePicker(false)
-                setSelectedReminderDate(date)
-              }}
-              onCancel={() => setShowDatePicker(false)} />
-            <View style={[styles.row, { marginTop: 24 }]}>
-              <Text>Enabled</Text>
-              <Pressable onPress={() => setIsSelectedReminderEnabled(!isSelectedReminderEnabled)}>
-                <View
-                  style={[{
-                    width: 32,
-                    height: 32,
-                    borderColor: "lightgray",
-                    borderWidth: 2,
-                    borderRadius: 8
-                  },
-                  isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]} />
-              </Pressable>
-            </View>
-            <View style={styles.buttonRow}>
-              <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
-              <Button buttonText={selectedReminder == null ? "Add" : "Save"}
-                color={selectedReminderTitle ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
-                disabled={!selectedReminderTitle}
-                onPress={() => {
+      {reminderModal()}
+      {infoModal()}
 
-                  console.log("add")
-                  let newReminders = reminders
-                  let time = selectedReminderDate.toLocaleTimeString().slice(0, 3) + selectedReminderDate.toLocaleTimeString().slice(3, 5)
-
-                  if (!selectedReminder) { //New reminder
-                    newReminders.push({ title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled })
-                  } else { //Editing reminder
-                    newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled }
-                  }
-
-                  setReminders(newReminders)
-
-                  dismissModal()
-                  ToastAndroid.show(selectedReminderTitle + (selectedReminder ? " saved!" : " added!"), ToastAndroid.SHORT)
-                }} />
-
-            </View>
-          </View>
-        }
-      />
     </ScrollView>
   )
 }

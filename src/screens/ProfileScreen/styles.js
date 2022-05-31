@@ -5,6 +5,11 @@ const styles = StyleSheet.create({
     container: {
         padding: 12,
     },
+    info: {
+        backgroundColor: "white",
+        padding: 8,
+        borderRadius: 8,
+    },
     infoContainer: {
         marginLeft: 8,
         marginTop: 8,
@@ -19,13 +24,12 @@ const styles = StyleSheet.create({
     },
     infoText: {
         marginLeft: 8,
-
     },
     modalNotificationEnabled: {
         backgroundColor: colors.COLOR_PRIMARY_1
     },
     modalNotificationDisabled: {
-        backgroundColor:"transparent"
+        backgroundColor: "transparent"
     },
     reminderSubHeader: {
         marginTop: 12,
@@ -48,9 +52,9 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         marginTop: 16
     },
-    time:{
-        fontWeight:"bold",
-        fontSize:18,
+    time: {
+        fontWeight: "bold",
+        fontSize: 18,
     }
 
 })

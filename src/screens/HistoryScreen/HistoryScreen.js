@@ -16,7 +16,8 @@ const HistoryScreen = () => {
   const getData = async () => {
     try {
       let keys = await AsyncStorage.getAllKeys()
-      console.log(keys);
+      keys.splice(keys.indexOf("@userInfo"),1)
+      console.log(keys)
 
       let newDays = []
       await AsyncStorage.multiGet(keys)
