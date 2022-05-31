@@ -184,12 +184,11 @@ const ProfileScreen = ({ navigation }) => {
                 let time = selectedReminderDate.toLocaleTimeString().slice(0, 3) + selectedReminderDate.toLocaleTimeString().slice(3, 5)
 
                 if (selectedReminder == null) { //New reminder
-                  newReminders.push({ title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled })
+                  newReminders.push({ title: selectedReminderTitle, time: time, enabled: isSelectedReminderEnabled })
                 } else { //Editing reminder
                   newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: isSelectedReminderEnabled }
                 }
 
-                // setReminders(newReminders)
                 storeData(newReminders, "@reminders")
 
                 dismissModal()

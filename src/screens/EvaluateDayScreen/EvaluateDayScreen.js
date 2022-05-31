@@ -15,6 +15,7 @@ import { Picker } from '@react-native-picker/picker'
 import { Slider } from '@miblanchard/react-native-slider'
 import * as shape from 'd3-shape'
 import Button from '../../components/Button/Button'
+import HorizontalSelect from '../../components/HorizontalSelect/HorizontalSelect'
 
 const EvaluateDayScreen = ({ route, navigation }) => {
 
@@ -22,6 +23,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   const [simpleMoodValue, setSimpleMoodValue] = useState(null)
 
   const [currentDate, setCurrentDate] = useState()
+  const [selectedMode, setSelectedMode] = useState("simple")
   const selectedDate = route.params.selectedDate
   const isToday = !route.params.selectedDate
 
@@ -79,10 +81,10 @@ const EvaluateDayScreen = ({ route, navigation }) => {
       let date = isToday ? currentDate : selectedDate
       console.log(date);
       let points = []
-      if (simpleMoodValue != null) {
+      if (selectedMode == "simple") { //Simple
         points.push(simpleMoodValue * 2.5)
         console.log(points);
-      } else {
+      } else { //Advanced
         points = data
         console.log(points);
       }
@@ -98,78 +100,84 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} ref={scrollViewRef}>
-        <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 0 }]}>
+        <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 8 }]}>
           Evaluating {isToday ? "today" : new Date(selectedDate).toDateString()}
         </Text>
-        <Text style={styles.subtitleText}>Choose a generalized mood for {isToday ? "today" : "this day"} -</Text>
-        <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
-          <HorizontalSelectCircles amount={5}
-            onPressItem={(i) => {
-              setSimpleMoodValue(i !== simpleMoodValue ? i : null)
-            }}
-            style={{ marginVertical: 12 }} />
-          <View style={styles.simpleMoodValueInfoContainer}>
-            <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
-            <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
-            <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+        <HorizontalSelect values={["Simple", "Advanced"]} style={{ paddingVertical: 6 }}
+          onPressItem={(i) => {
+            setSelectedMode(i == 0 ? "simple" : "advanced")
+          }} />
+        <View style={selectedMode == "advanced" ? { height: 0, overflow: "hidden" } : null}>
+          <Text style={styles.subtitleText}>Choose a generalized mood for {isToday ? "today" : "this day"}</Text>
+          <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
+            <HorizontalSelectCircles amount={5}
+              onPressItem={(i) => {
+                setSimpleMoodValue(i !== simpleMoodValue ? i : null)
+              }}
+              style={{ marginVertical: 12 }} />
+            <View style={styles.simpleMoodValueInfoContainer}>
+              <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
+              <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
+              <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+            </View>
           </View>
         </View>
-        <Text style={styles.subtitleText}>- or select moments from your day that stood out</Text>
-        <View style={styles.chartContainer}>
-          <View style={{ flexDirection: "row", paddingRight: 24 }}>
-            <YAxis
-              contentInset={contentInset}
+        <View style={selectedMode == "simple" ? { height: 0, overflow: "hidden" } : null}>
+          <Text style={styles.subtitleText}>Select moments from your day that stood out</Text>
+          <View style={styles.chartContainer}>
+            <View style={{ flexDirection: "row", paddingRight: 24 }}>
+              <YAxis
+                contentInset={contentInset}
+                min={0}
+                max={10}
+                data={data}
+                svg={{
+                  fill: colors.COLOR_PRIMARY_1_DARK_2,
+                  fontSize: 14,
+                }}
+                numberOfTicks={5}
+              />
+              <AreaChart
+                style={{ flex: 1, marginLeft: 8, height: 256 }}
+                data={data}
+                gridMin={0}
+                gridMax={10}
+                start={0}
+                contentInset={contentInset}
+                curve={shape.curveBumpX}
+                svg={{ fill: 'url(#gradient)' }}>
+                <Line color={colors.COLOR_PRIMARY_1_DARK_2} />
+                <Grid />
+                <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
+                  onDotPress={i => {
+                    setSelectedTimeFrom(selectableTimeValues[i])
+                    setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
+                    setSelectedMoodValue(5)
+                    setShowAddMoodPeriodModal(true)
+                  }} />
+                <Defs>
+                  <LinearGradient id={'gradient'} x1={'0%'} y1={'0%'} x2={'0%'} y2={'100%'}>
+                    <Stop offset={'0%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={1} />
+                    <Stop offset={'100%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={0.1} />
+                  </LinearGradient>
+                </Defs>
+              </AreaChart>
+            </View>
+
+            <XAxis
+              contentInset={{ left: 24, right: 28 }}
               min={0}
-              max={10}
+              max={8}
               data={data}
               svg={{
                 fill: colors.COLOR_PRIMARY_1_DARK_2,
                 fontSize: 14,
               }}
-              numberOfTicks={5}
-            />
-            <AreaChart
-              style={{ flex: 1, marginLeft: 8, height: 256 }}
-              data={data}
-              gridMin={0}
-              gridMax={10}
-              start={0}
-              contentInset={contentInset}
-              curve={shape.curveBumpX}
-              svg={{ fill: 'url(#gradient)' }}
-            >
-              <Line color={colors.COLOR_PRIMARY_1_DARK_2} />
-              <Grid />
-              <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
-                onDotPress={i => {
-                  setSelectedTimeFrom(selectableTimeValues[i])
-                  setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
-                  setSelectedMoodValue(5)
-                  setShowAddMoodPeriodModal(true)
-                }} />
-              <Defs>
-                <LinearGradient id={'gradient'} x1={'0%'} y1={'0%'} x2={'0%'} y2={'100%'}>
-                  <Stop offset={'0%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={1} />
-                  <Stop offset={'100%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={0.1} />
-                </LinearGradient>
-              </Defs>
-            </AreaChart>
+              formatLabel={(value, index) => (
+                index * 6 < 10 ? `0${index * 6}:00` : `${index * 6}:00`
+              )}
+              numberOfTicks={5} />
           </View>
-
-          <XAxis
-            contentInset={{ left: 24, right: 28 }}
-            min={0}
-            max={8}
-            data={data}
-            svg={{
-              fill: colors.COLOR_PRIMARY_1_DARK_2,
-              fontSize: 14,
-            }}
-            formatLabel={(value, index) => (
-              index * 6 < 10 ? `0${index * 6}:00` : `${index * 6}:00`
-            )}
-            numberOfTicks={5} />
-
         </View>
 
         <Text style={styles.subtitleText}>Write a note about {isToday ? "today" : "this day"}</Text>
@@ -234,7 +242,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
             </View>
 
             <View style={{ flexDirection: "row", marginTop: 16, justifyContent: "flex-end" }}>
-              <Button buttonText={"Cancel"} onPress={() => setShowAddMoodPeriodModal(false)} color={colors.COLOR_CANCEL}/>
+              <Button buttonText={"Cancel"} onPress={() => setShowAddMoodPeriodModal(false)} color={colors.COLOR_CANCEL} />
               <Button buttonText={"Save"}
                 onPress={() => {
                   let newMoodValues = []
