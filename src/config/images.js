@@ -13,6 +13,7 @@ const images = {
     add: require("../assets/add.png"),
     refresh: require("../assets/refresh.png"),
     edit: require("../assets/edit.png"),
+    delete: require("../assets/delete.png"),
 
     //User info
     cake: require("../assets/cake.png"),

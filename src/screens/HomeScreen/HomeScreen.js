@@ -83,7 +83,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text>Hi Kim, how was your day?</Text>
+      <Text style={{fontSize:16, fontWeight:"bold", color:colors.COLOR_PRIMARY_1_DARK_2, marginBottom:4, flex: 1, textAlign:"center"}} >Hi Kim, how was your day?</Text>
       {/* Graph */}
       <View style={styles.chartContainer}>
         <Text style={{ fontWeight: "bold", marginLeft: 32, color: colors.COLOR_PRIMARY_1_DARK_2 }}>Past week</Text>

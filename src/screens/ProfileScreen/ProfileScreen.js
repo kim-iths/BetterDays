@@ -51,31 +51,37 @@ const ProfileScreen = ({ navigation }) => {
   })
 
   useEffect(() => {
-    setMockReminders()
+    // setMockReminders()
     // setInfo({ name: name, birthday: birthday, phone: phone, address: address })
     // populateInfoTexts()
-    getData()
-    console.log(info);
+    getData("@userInfo")
+    getData("@reminders")
   }, [])
 
-  const storeData = (info) => {
+  const storeData = (info, key) => {
     try {
       let data = JSON.stringify(info)
-      AsyncStorage.setItem("@userInfo", data).then(() => {
-        getData()
-        ToastAndroid.show("Profile updated", ToastAndroid.SHORT)
+      AsyncStorage.setItem(key, data).then(() => {
+        getData("@userInfo")
+        getData("@reminders")
+
+        if (key == "@userInfo") ToastAndroid.show("Profile updated", ToastAndroid.SHORT)
       })
     } catch (error) {
 
     }
   }
-  const getData = () => {
+  const getData = (key) => {
     try {
-      AsyncStorage.getItem("@userInfo").then(res => {
+      AsyncStorage.getItem(key).then(res => {
         if (res != null) {
           let data = JSON.parse(res)
-          data.birthday = data.birthday ? new Date(data.birthday) : ""
-          setInfo(data)
+          if (key == "@userInfo") {
+            data.birthday = data.birthday ? new Date(data.birthday) : ""
+            setInfo(data)
+          } else if (key == "@reminders") {
+            setReminders(data)
+          }
         }
       })
     } catch (error) {
@@ -154,6 +160,20 @@ const ProfileScreen = ({ navigation }) => {
             </Pressable>
           </View>
           <View style={styles.buttonRow}>
+            {selectedReminder != null
+              ? <Button icon={images.delete}
+                color={colors.COLOR_CANCEL}
+                innerStyle={{ paddingHorizontal: 8, paddingVertical: 8 }}
+                style={{ marginRight: "auto" }}
+                onPress={() => {
+
+                  let newReminders = reminders
+                  newReminders.splice(selectedReminder, 1)
+                  storeData(newReminders, "@reminders")
+                  dismissModal()
+                  ToastAndroid.show(selectedReminderTitle + " deleted", ToastAndroid.SHORT)
+                }} />
+              : null}
             <Button buttonText={"Cancel"} color={colors.COLOR_CANCEL} onPress={() => dismissModal()} />
             <Button buttonText={selectedReminder == null ? "Add" : "Save"}
               color={selectedReminderTitle ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
@@ -163,13 +183,14 @@ const ProfileScreen = ({ navigation }) => {
                 let newReminders = reminders
                 let time = selectedReminderDate.toLocaleTimeString().slice(0, 3) + selectedReminderDate.toLocaleTimeString().slice(3, 5)
 
-                if (!selectedReminder) { //New reminder
+                if (selectedReminder == null) { //New reminder
                   newReminders.push({ title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled })
                 } else { //Editing reminder
-                  newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: setIsSelectedReminderEnabled }
+                  newReminders[selectedReminder] = { title: selectedReminderTitle, time: time, enabled: isSelectedReminderEnabled }
                 }
 
-                setReminders(newReminders)
+                // setReminders(newReminders)
+                storeData(newReminders, "@reminders")
 
                 dismissModal()
                 ToastAndroid.show(selectedReminderTitle + (selectedReminder ? " saved!" : " added!"), ToastAndroid.SHORT)
@@ -228,7 +249,7 @@ const ProfileScreen = ({ navigation }) => {
             <Button buttonText={"Save"}
               color={name ? colors.COLOR_PRIMARY_1_DARK_2 : colors.COLOR_PRIMARY_1_DARK}
               onPress={() => {
-                storeData({ name: name, birthday: birthday, phone: phone, address: address })
+                storeData({ name: name, birthday: birthday, phone: phone, address: address }, "@userInfo")
                 dismissModal()
               }} />
 
@@ -240,7 +261,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={[styles.info, {paddingBottom:  Object.keys(info).length != 0 ? 16 : null}]}>
+      <View style={[styles.info, { paddingBottom: Object.keys(info).length != 0 ? 16 : null }]}>
         <View style={[styles.row, { marginLeft: 8 }]}>
           <Text style={styles.nameText}>
             {info.name ? info.name : "New user"}
@@ -259,7 +280,7 @@ const ProfileScreen = ({ navigation }) => {
         {info.address ? <InfoText text={info.address} icon={images.address} /> : null}
 
       </View>
-      <View style={{ backgroundColor: "white", padding: 12, borderRadius: 8, marginTop: 16 }}>
+      <View style={{ backgroundColor: "white", padding: 8, borderRadius: 8, marginTop: 8 }}>
         {/* Creates list of reminders */}
         {reminders.map((r, i) => (
           <Button key={i}
@@ -275,17 +296,20 @@ const ProfileScreen = ({ navigation }) => {
               setShowReminderModal(true)
               setSelectedReminder(i)
 
-              setIsSelectedReminderEnabled(i.enabled)
+              setIsSelectedReminderEnabled(r.enabled)
               setSelectedReminderTitle(r.title)
               setSelectedReminderDate(reminderTime)
 
             }} />
         ))}
 
-        {reminders ?
+        {reminders.length > 0 ?
           <View style={{ height: 1, backgroundColor: "lightgray", marginHorizontal: 8, }} />
           : null}
-        <Button buttonText={"Add reminder"} icon={images.add} color={colors.COLOR_PRIMARY_1_DARK_2} style={{ marginTop: 8 }}
+        <Button buttonText={"Add reminder"}
+          icon={images.add}
+          color={colors.COLOR_PRIMARY_1_DARK_2} 
+          style={{ marginTop: reminders.length > 0 ? 8 : 0 }}
           onPress={() => setShowReminderModal(true)} />
       </View>
 
