@@ -1,4 +1,4 @@
-import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, Button, TextInput, Keyboard } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, TextInput, Keyboard } from 'react-native'
 import styles from './styles'
 import React, { useEffect, useRef, useState } from 'react'
 import images from '../../config/images'
@@ -14,6 +14,7 @@ import ModalCustom from '../../components/ModalCustom/ModalCustom'
 import { Picker } from '@react-native-picker/picker'
 import { Slider } from '@miblanchard/react-native-slider'
 import * as shape from 'd3-shape'
+import Button from '../../components/Button/Button'
 
 const EvaluateDayScreen = ({ route, navigation }) => {
 
@@ -143,6 +144,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
                 onDotPress={i => {
                   setSelectedTimeFrom(selectableTimeValues[i])
                   setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
+                  setSelectedMoodValue(5)
                   setShowAddMoodPeriodModal(true)
                 }} />
               <Defs>
@@ -209,11 +211,11 @@ const EvaluateDayScreen = ({ route, navigation }) => {
         modalContent={
           <View>
             <Text>From:</Text>
-            <Picker selectedValue={selectedTimeFrom} onValueChange={item => setSelectedTimeFrom(item)}>
+            <Picker mode='dropdown' selectedValue={selectedTimeFrom} onValueChange={item => setSelectedTimeFrom(item)}>
               {pickerItems()}
             </Picker>
             <Text>To:</Text>
-            <Picker selectedValue={selectedTimeTo} onValueChange={item => setSelectedTimeTo(item)}>
+            <Picker mode='dropdown' selectedValue={selectedTimeTo} onValueChange={item => setSelectedTimeTo(item)}>
               {pickerItems()}
             </Picker>
             <Text>How did you feel from 0-10?</Text>
@@ -232,8 +234,8 @@ const EvaluateDayScreen = ({ route, navigation }) => {
             </View>
 
             <View style={{ flexDirection: "row", marginTop: 16, justifyContent: "flex-end" }}>
-              <Button title='cancel' onPress={() => setShowAddMoodPeriodModal(false)} />
-              <Button title='save'
+              <Button buttonText={"Cancel"} onPress={() => setShowAddMoodPeriodModal(false)} color={colors.COLOR_CANCEL}/>
+              <Button buttonText={"Save"}
                 onPress={() => {
                   let newMoodValues = []
                   selectableTimeValues.forEach((t, i) => {
