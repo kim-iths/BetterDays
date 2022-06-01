@@ -6135,6 +6135,11 @@
   "resolved" "https://registry.npmjs.org/react-native-date-picker/-/react-native-date-picker-4.2.2.tgz"
   "version" "4.2.2"
 
+"react-native-device-info@^8.7.1":
+  "integrity" "sha512-cVMZztFa2Qn6qpQa601W61CtUwZQ1KXfqCOeltejAWEXmgIWivC692WGSdtGudj4upSi1UgMSaGcvKjfcpdGjg=="
+  "resolved" "https://registry.npmjs.org/react-native-device-info/-/react-native-device-info-8.7.1.tgz"
+  "version" "8.7.1"
+
 "react-native-gradle-plugin@^0.0.6":
   "integrity" "sha512-eIlgtsmDp1jLC24dRn43hB3kEcZVqx6DUQbR0N1ABXGnMEafm9I3V3dUUeD1vh+Dy5WqijSoEwLNUPLgu5zDMg=="
   "resolved" "https://registry.npmjs.org/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.6.tgz"

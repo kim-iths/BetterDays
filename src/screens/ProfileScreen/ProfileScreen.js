@@ -23,7 +23,6 @@ const ProfileScreen = ({ navigation }) => {
   const [isSelectedReminderEnabled, setIsSelectedReminderEnabled] = useState(true)
 
   //Info
-  const [infoTextViews, setInfoTextViews] = useState([])
   const [info, setInfo] = useState({})
   const [name, setName] = useState("Kim")
   const [birthday, setBirthday] = useState(new Date("2000-01-01"))
@@ -51,9 +50,6 @@ const ProfileScreen = ({ navigation }) => {
   })
 
   useEffect(() => {
-    // setMockReminders()
-    // setInfo({ name: name, birthday: birthday, phone: phone, address: address })
-    // populateInfoTexts()
     getData("@userInfo")
     getData("@reminders")
   }, [])
@@ -96,15 +92,6 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.infoText}>{text}</Text>
       </View>
     )
-  }
-
-  const setMockReminders = () => {
-    let reminders = [
-      { title: "Utvärdera dagen!!", time: "23:00", enabled: true },
-      { title: "Ta Fluoxetin 2st", time: "22:00", enabled: true },
-      { title: "Ta Atarax 1st", time: "07:30", enabled: false },
-    ]
-    setReminders(reminders)
   }
 
   const dismissModal = () => {

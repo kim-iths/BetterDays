@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         marginBottom: 4,
+        fontFamily: "Roboto",
     },
     infoText: {
         marginLeft: 8,
