@@ -1,6 +1,6 @@
 import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, TextInput, Keyboard } from 'react-native'
 import styles from './styles'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -16,6 +16,8 @@ import { Slider } from '@miblanchard/react-native-slider'
 import * as shape from 'd3-shape'
 import Button from '../../components/Button/Button'
 import HorizontalSelect from '../../components/HorizontalSelect/HorizontalSelect'
+import { EvaluatedDaysContext } from '../../config/EvaluatedDaysContext'
+import moment from 'moment'
 
 const EvaluateDayScreen = ({ route, navigation }) => {
 
@@ -35,6 +37,8 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   const [selectedMoodValue, setSelectedMoodValue] = useState(5)
   const [moodValues, setMoodValues] = useState([])
   const [note, setNote] = useState("")
+
+  const daysContext = useContext(EvaluatedDaysContext)
 
   const contentInset = { top: 16, bottom: 24, }
   const selectableTimeValues = [0, 3, 6, 9, 12, 15, 18, 21, 24]
@@ -101,7 +105,8 @@ const EvaluateDayScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} ref={scrollViewRef}>
         <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 8 }]}>
-          Evaluating {isToday ? "today" : new Date(selectedDate).toDateString()}
+          Evaluating {isToday ? `today - ${moment(currentDate).format("D MMMM")}` 
+          : new Date(selectedDate).toDateString()} 
         </Text>
         <HorizontalSelect values={["Simple", "Advanced"]} style={{ paddingVertical: 6 }}
           onPressItem={(i) => {
@@ -165,10 +170,11 @@ const EvaluateDayScreen = ({ route, navigation }) => {
             </View>
 
             <XAxis
-              contentInset={{ left: 24, right: 28 }}
+            style={{paddingVertical:2}}
+              contentInset={{ left: 24, right: 28, }}
               min={0}
               max={8}
-              data={data}
+              data={selectedMode == "advanced" ? data : []}
               svg={{
                 fill: colors.COLOR_PRIMARY_1_DARK_2,
                 fontSize: 14,
@@ -204,7 +210,10 @@ const EvaluateDayScreen = ({ route, navigation }) => {
         <TouchableNativeFeedback
           onPress={() => {
             ToastAndroid.show(`You've evaluated ${selectedDate ? selectedDate : currentDate}!`, ToastAndroid.SHORT)
-            storeData().then(navigation.goBack())
+            storeData().then(() => {
+              navigation.goBack()
+              daysContext.setAmount(daysContext.amount + 1)
+            })
           }}>
           <View style={styles.bottomButton} pointerEvents="box-only">
             <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign: "center" }}>Done</Text>

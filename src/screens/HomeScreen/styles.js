@@ -17,17 +17,25 @@ const styles = StyleSheet.create({
         backgroundColor: colors.COLOR_PRIMARY_2,
         justifyContent: "space-between"
     },
-    selectDateModal:{
+    selectDateModal: {
         margin: 10,
-        backgroundColor:"red"
+        backgroundColor: "red"
     },
     chartContainer: {
         borderRadius: 16,
-        marginTop:8,
+        marginTop: 8,
         paddingLeft: 8,
         overflow: "hidden",
         backgroundColor: "white",
         paddingVertical: 12,
+        
+    },
+    noDataText: {
+        flex: 1,
+        textAlign: "center",
+        paddingVertical: 112,
+        fontSize: 16,
+        
     },
 })
 

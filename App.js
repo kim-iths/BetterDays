@@ -6,17 +6,20 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigation from './src/screens/TabNavigation/TabNavigation';
 import EvaluateDayScreen from './src/screens/EvaluateDayScreen/EvaluateDayScreen';
 import SettingsScreen from './src/screens/SettingsScreen/SettingsScreen.js';
+import { EvaluatedDaysContextProvider } from './src/config/EvaluatedDaysContext';
 
 const Stack = createNativeStackNavigator()
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Tab" component={TabNavigation} options={{ headerShown: false }} />
-        <Stack.Screen name="Evaluate day" component={EvaluateDayScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
-      </Stack.Navigator>
+      <EvaluatedDaysContextProvider>
+        <Stack.Navigator>
+          <Stack.Screen name="Tab" component={TabNavigation} options={{ headerShown: false }} />
+          <Stack.Screen name="Evaluate day" component={EvaluateDayScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+        </Stack.Navigator>
+      </EvaluatedDaysContextProvider>
     </NavigationContainer>
   )
 }

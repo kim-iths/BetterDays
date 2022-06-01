@@ -135,15 +135,17 @@ const ProfileScreen = ({ navigation }) => {
           <View style={[styles.row, { marginTop: 24 }]}>
             <Text>Enabled</Text>
             <Pressable onPress={() => setIsSelectedReminderEnabled(!isSelectedReminderEnabled)}>
-              <View
+              <Image
+                source={isSelectedReminderEnabled ? images.done : null}
                 style={[{
                   width: 32,
                   height: 32,
                   borderColor: "lightgray",
                   borderWidth: 2,
-                  borderRadius: 8
-                },
-                isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]} />
+                  borderRadius: 8,
+                  tintColor: "white",
+                }, isSelectedReminderEnabled ? styles.modalNotificationEnabled : styles.modalNotificationDisabled]}
+              />
             </Pressable>
           </View>
           <View style={styles.buttonRow}>
@@ -263,7 +265,7 @@ const ProfileScreen = ({ navigation }) => {
         </View>
         {info.birthday ? <InfoText text={info.birthday.toDateString().slice(4)} icon={images.cake} /> : null}
         {info.phone ? <InfoText text={info.phone} icon={images.phone} /> : null}
-        {info.address ? <InfoText text={info.address} icon={images.address} /> : null}
+        {info.address ? <InfoText text={info.address} icon={images.home} /> : null}
 
       </View>
       <View style={{ backgroundColor: "white", padding: 8, borderRadius: 8, marginTop: 8 }}>
@@ -294,7 +296,7 @@ const ProfileScreen = ({ navigation }) => {
           : null}
         <Button buttonText={"Add reminder"}
           icon={images.add}
-          color={colors.COLOR_PRIMARY_1_DARK_2} 
+          color={colors.COLOR_PRIMARY_1_DARK_2}
           style={{ marginTop: reminders.length > 0 ? 8 : 0 }}
           onPress={() => setShowReminderModal(true)} />
       </View>
