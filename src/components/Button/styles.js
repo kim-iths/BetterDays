@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center"
+        alignItems: "center",
     },
     innerContainerWithIcon: {
 
@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         // flex: 1,
         textAlign: "center",
+        fontFamily: 'Roboto',
     },
     textWithIcon:{
         textAlign:"left"
