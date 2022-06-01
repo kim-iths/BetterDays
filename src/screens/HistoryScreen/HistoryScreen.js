@@ -69,9 +69,12 @@ const HistoryScreen = () => {
     // let month = parseInt(item.date.slice(5, 7)) - 1
     // let renderMonthText = false
 
-    return <HistoryListItem date={item.date} note={item.info.note} average={item.average} />
+    return <HistoryListItem date={item.date} note={item.info.note} average={item.average} onPress={() => {
+      AsyncStorage.clear().then(getData())
+      daysContext.setAmount(0)
+    }} />
     // <View>
-      {/* {renderMonthText ? <Text style={{ flex: 1, marginTop: isTop ? 8 : 16 }}>{months[month]}</Text> :
+    {/* {renderMonthText ? <Text style={{ flex: 1, marginTop: isTop ? 8 : 16 }}>{months[month]}</Text> :
         null
       } */}
     // </View>
@@ -79,23 +82,12 @@ const HistoryScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <View style={styles.container}>
-        <Button buttonText={"Get"} textStyle={{ flex: 1 }} onPress={getData} color={colors.COLOR_PRIMARY_1_DARK_2} />
-        <Button buttonText={"Clear"} textStyle={{ flex: 1 }} color={colors.COLOR_CANCEL}
-          onPress={async () => {
-            try {
-              await AsyncStorage.clear().then(getData())
-            } catch (e) {
-              console.log(error)
-            }
-          }} />
-      </View> */}
       <FlatList
         contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 12 }}
         renderItem={renderItem}
         data={days}
         keyExtractor={item => item.date}
-
+        ListEmptyComponent={<Text style={{flex:1, textAlign:"center", marginTop:12, fontSize:16}}>No items yet</Text>}
       />
     </View>
   )

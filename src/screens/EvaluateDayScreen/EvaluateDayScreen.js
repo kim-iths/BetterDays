@@ -17,6 +17,7 @@ import * as shape from 'd3-shape'
 import Button from '../../components/Button/Button'
 import HorizontalSelect from '../../components/HorizontalSelect/HorizontalSelect'
 import { EvaluatedDaysContext } from '../../config/EvaluatedDaysContext'
+import moment from 'moment'
 
 const EvaluateDayScreen = ({ route, navigation }) => {
 
@@ -104,7 +105,8 @@ const EvaluateDayScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} ref={scrollViewRef}>
         <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 8 }]}>
-          Evaluating {isToday ? "today" : new Date(selectedDate).toDateString()}
+          Evaluating {isToday ? `today - ${moment(currentDate).format("D MMMM")}` 
+          : new Date(selectedDate).toDateString()} 
         </Text>
         <HorizontalSelect values={["Simple", "Advanced"]} style={{ paddingVertical: 6 }}
           onPressItem={(i) => {
@@ -168,10 +170,11 @@ const EvaluateDayScreen = ({ route, navigation }) => {
             </View>
 
             <XAxis
-              contentInset={{ left: 24, right: 28 }}
+            style={{paddingVertical:2}}
+              contentInset={{ left: 24, right: 28, }}
               min={0}
               max={8}
-              data={data}
+              data={selectedMode == "advanced" ? data : []}
               svg={{
                 fill: colors.COLOR_PRIMARY_1_DARK_2,
                 fontSize: 14,
