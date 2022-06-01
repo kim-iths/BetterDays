@@ -16,11 +16,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     noteText: {
-        marginTop: 6,
+        marginTop: 8,
         // fontStyle: "italic",
     },
     averageValueText: {
-        marginTop: 6,
         fontSize: 18,
         color: colors.COLOR_PRIMARY_1_DARK_2
     }

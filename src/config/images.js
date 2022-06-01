@@ -20,10 +20,17 @@ const images = {
     cake: require("../assets/cake.png"),
     phone: require("../assets/phone.png"),
     address: require("../assets/address.png"),
-
+    
     //Reminders
     notifications: require("../assets/notifications.png"),
     notificationsOff: require("../assets/notifications_off.png"),
+    
+    //Mood
+    moodVeryHappy: require("../assets/mood_very_happy.png"),
+    moodHappy: require("../assets/mood_happy.png"),
+    moodNeutral: require("../assets/mood_neutral.png"),
+    moodUnhappy: require("../assets/mood_unhappy.png"),
+
 }
 
 export default images
