@@ -11,7 +11,7 @@ const HistoryListItem = ({ date, note, average, onPress }) => {
                 onPress={onPress}>
                 <View style={styles.innerContainer} pointerEvents="box-only">
                     <Text style={styles.dateText}>{date}</Text>
-                    <Text style={styles.noteText}>{note}</Text>
+                    <Text style={styles.noteText}>{note != "" ? `"${note}"` : "No note for this day"}</Text>
                     <Text style={styles.averageValueText}>{average.toFixed(average < 10 && average > 0.1 ? 1 : 0)}</Text>
                 </View>
             </TouchableNativeFeedback>

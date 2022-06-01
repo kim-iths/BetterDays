@@ -1,6 +1,6 @@
 import { TouchableNativeFeedback, Text, View, Image, TextInput, ScrollView } from 'react-native'
 import styles from './styles'
-import React, { useEffect, useState, useLayoutEffect } from 'react'
+import React, { useEffect, useState, useLayoutEffect, useContext } from 'react'
 import images from '../../config/images'
 import colors from '../../config/colors'
 import ModalCustom from '../../components/ModalCustom/ModalCustom'
@@ -14,6 +14,7 @@ import { Grid } from 'react-native-svg-charts'
 import { XAxis } from 'react-native-svg-charts'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import moment from 'moment'
+import { EvaluatedDaysContext } from '../../config/EvaluatedDaysContext'
 
 const HomeScreen = ({ navigation }) => {
   const [dateInput, setDateInput] = useState("")
@@ -23,23 +24,7 @@ const HomeScreen = ({ navigation }) => {
   const [data, setData] = useState([5, 3, 5, null, 8, 5, 6])
   const contentInset = { top: 16, bottom: 24, }
 
-
-  //Only for testing
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableNativeFeedback
-          useForeground
-          background={TouchableNativeFeedback.Ripple(null, true, 24)}
-          onPress={() => getAverages()}
-        >
-          <View style={{ marginRight: 8, padding: 8 }} pointerEvents="box-only">
-            <Image source={images.refresh} style={{ width: 24, height: 24 }} />
-          </View>
-        </TouchableNativeFeedback>
-      )
-    })
-  })
+  const daysContext = useContext(EvaluatedDaysContext)
 
   const dismissModal = () => {
     setShowSelectDateModal(false)
@@ -77,7 +62,13 @@ const HomeScreen = ({ navigation }) => {
   //Get last week's averages
   useEffect(() => {
     getAverages()
-  }, [])
+  }, [daysContext])
+
+  // useEffect(() => {
+  //   getAverages()
+  // }, [])
+
+
 
   const getShortDate = (date) => date.toISOString().slice(0, 10)
 

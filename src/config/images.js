@@ -14,6 +14,7 @@ const images = {
     refresh: require("../assets/refresh.png"),
     edit: require("../assets/edit.png"),
     delete: require("../assets/delete.png"),
+    done: require("../assets/done.png"),
 
     //User info
     cake: require("../assets/cake.png"),
