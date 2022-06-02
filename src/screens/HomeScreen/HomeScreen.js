@@ -78,7 +78,6 @@ const HomeScreen = ({ navigation }) => {
       modalContent={
         <View>
           <CalendarPicker
-            showDayStragglers
             selectedDayColor={colors.COLOR_PRIMARY_1_DARK}
             selectedDayTextColor={"white"}
             width={380}

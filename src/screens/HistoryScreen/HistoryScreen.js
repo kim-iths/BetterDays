@@ -8,7 +8,7 @@ import Button from '../../components/Button/Button'
 import colors from '../../config/colors'
 import { EvaluatedDaysContext } from '../../config/EvaluatedDaysContext'
 
-const HistoryScreen = () => {
+const HistoryScreen = ({ navigation }) => {
 
   const [days, setDays] = useState([])
   let monthTextsRendered = []
@@ -68,10 +68,8 @@ const HistoryScreen = () => {
     // let isTop = item.index == days.length - 1
     // let month = parseInt(item.date.slice(5, 7)) - 1
     // let renderMonthText = false
-
     return <HistoryListItem date={item.date} note={item.info.note} average={item.average} onPress={() => {
-      AsyncStorage.clear().then(getData())
-      daysContext.setAmount(0)
+      navigation.navigate("Evaluate day", { selectedDate: item.date, points: item.info.points, note: item.info.note })
     }} />
     // <View>
     {/* {renderMonthText ? <Text style={{ flex: 1, marginTop: isTop ? 8 : 16 }}>{months[month]}</Text> :
@@ -87,7 +85,7 @@ const HistoryScreen = () => {
         renderItem={renderItem}
         data={days}
         keyExtractor={item => item.date}
-        ListEmptyComponent={<Text style={{flex:1, textAlign:"center", marginTop:12, fontSize:16}}>No items yet</Text>}
+        ListEmptyComponent={<Text style={{ flex: 1, textAlign: "center", marginTop: 12, fontSize: 16 }}>No items yet</Text>}
       />
     </View>
   )
