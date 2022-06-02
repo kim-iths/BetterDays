@@ -1,6 +1,6 @@
-import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, TextInput, Keyboard } from 'react-native'
+import { TouchableNativeFeedback, Text, View, ToastAndroid, ScrollView, TextInput, Keyboard, Image } from 'react-native'
 import styles from './styles'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import images from '../../config/images'
 import HorizontalSelectCircles from '../../components/HorizontalSelectCircles/HorizontalSelectCircles'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -28,10 +28,13 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   const [selectedMode, setSelectedMode] = useState("simple")
   const selectedDate = route.params.selectedDate
   const isToday = !route.params.selectedDate
+  const [datePoints, setDatePoints] = useState(route.params.points)
+  const dateNote = route.params.note
 
   const [showAddMoodPeriodModal, setShowAddMoodPeriodModal] = useState(false)
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
+  const [viewingMode, setViewingMode] = useState(route.params.points ? "Viewing" : "Evaluating")
   const [selectedTimeFrom, setSelectedTimeFrom] = useState(0)
   const [selectedTimeTo, setSelectedTimeTo] = useState(0)
   const [selectedMoodValue, setSelectedMoodValue] = useState(5)
@@ -52,6 +55,61 @@ const EvaluateDayScreen = ({ route, navigation }) => {
     ))
   )
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableNativeFeedback
+          useForeground
+          background={TouchableNativeFeedback.Ripple(null, true, 24)}
+          onPress={() => {
+            if (viewingMode == "Editing") {
+              setViewingMode("Viewing")
+            } else {
+              console.log(viewingMode);
+              setViewingMode("Editing")
+              setSelectedMode("simple")
+              setNote(dateNote)
+            }
+          }}
+        >
+          <View pointerEvents="box-only">
+            <Image source={viewingMode == "Evaluating" || viewingMode == "Viewing" ? images.edit : images.eye} style={{ width: 24, height: 24 }} />
+          </View>
+        </TouchableNativeFeedback>
+      )
+    })
+  })
+
+  useEffect(() => {
+    setCurrentDate(getShortDate(new Date()))
+    console.log("is today? " + isToday);
+
+
+
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, [])
+
+  useEffect(() => {
+    //Checks if you're viewing or evaluating a day
+    if (viewingMode == "Viewing") {
+      setSelectedMode("advanced")
+      if (datePoints.length == 1) {
+        let expandedPoints = data.map(() => (datePoints[0]))
+        setData(expandedPoints)
+      } else {
+        setData(route.params.points)
+      }
+    } else {
+      setSelectedMode("simple")
+    }
+  }, [viewingMode])
+
   useEffect(() => {
     if (moodValues.length > 0) {
       let newData = [...data]
@@ -62,22 +120,12 @@ const EvaluateDayScreen = ({ route, navigation }) => {
     }
   }, [moodValues])
 
-  useEffect(() => {
-    setCurrentDate(getShortDate(new Date()))
-    console.log("is today? " + isToday);
-
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true))
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false))
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   //Unfocuses the TextInput when the user presses the back button
   useEffect(() => {
-    if (TextInputRef.current.isFocused() && !keyboardVisible) Keyboard.dismiss()
+    if (viewingMode == "Evaluating" || viewingMode == "Editing") {
+      if (TextInputRef.current.isFocused() && !keyboardVisible) Keyboard.dismiss()
+    }
   }, [keyboardVisible])
 
   const storeData = async () => {
@@ -104,31 +152,36 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView} ref={scrollViewRef}>
-        <Text style={[styles.subtitleText, { backgroundColor: "white", paddingVertical: 8, textAlign: "center", borderRadius: 8, marginBottom: 8 }]}>
-          Evaluating {isToday ? `today - ${moment(currentDate).format("D MMMM")}` 
-          : new Date(selectedDate).toDateString()} 
+        <Text style={[styles.subtitleText, styles.evaluatingDayCard]}>
+          {viewingMode} {isToday ? `today - ${moment(currentDate).format("D MMMM")}`
+            : new Date(selectedDate).toDateString()}
         </Text>
-        <HorizontalSelect values={["Simple", "Advanced"]} style={{ paddingVertical: 6 }}
-          onPressItem={(i) => {
-            setSelectedMode(i == 0 ? "simple" : "advanced")
-          }} />
-        <View style={selectedMode == "advanced" ? { height: 0, overflow: "hidden" } : null}>
-          <Text style={styles.subtitleText}>Choose a generalized mood for {isToday ? "today" : "this day"}</Text>
-          <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
-            <HorizontalSelectCircles amount={5}
+        {viewingMode == "Viewing"
+          ? null
+          : <View>
+            <HorizontalSelect values={["Simple", "Advanced"]} style={{ paddingVertical: 6 }}
               onPressItem={(i) => {
-                setSimpleMoodValue(i !== simpleMoodValue ? i : null)
-              }}
-              style={{ marginVertical: 12 }} />
-            <View style={styles.simpleMoodValueInfoContainer}>
-              <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
-              <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
-              <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+                setSelectedMode(i == 0 ? "simple" : "advanced")
+              }} />
+            <View style={selectedMode == "advanced" ? { height: 0, overflow: "hidden" } : null}>
+              <Text style={styles.subtitleText}>Choose a generalized mood for {isToday ? "today" : "this day"}</Text>
+              <View style={{ backgroundColor: "white", paddingHorizontal: 12, borderRadius: 16, }}>
+                <HorizontalSelectCircles amount={5}
+                  onPressItem={(i) => {
+                    setSimpleMoodValue(i !== simpleMoodValue ? i : null)
+                  }}
+                  style={{ marginVertical: 12 }} />
+                <View style={styles.simpleMoodValueInfoContainer}>
+                  <Text style={styles.simpleMoodValueInfoText}>Bad</Text>
+                  <Text style={[styles.simpleMoodValueInfoText, { textAlign: "center" }]}>Alright</Text>
+                  <Text style={[styles.simpleMoodValueInfoText, { textAlign: "right" }]}>Good</Text>
+                </View>
+              </View>
             </View>
           </View>
-        </View>
+        }
         <View style={selectedMode == "simple" ? { height: 0, overflow: "hidden" } : null}>
-          <Text style={styles.subtitleText}>Select moments from your day that stood out</Text>
+          {viewingMode == "Viewing" ? null : <Text style={styles.subtitleText}>Select moments from your day that stood out</Text>}
           <View style={styles.chartContainer}>
             <View style={{ flexDirection: "row", paddingRight: 24 }}>
               <YAxis
@@ -151,15 +204,17 @@ const EvaluateDayScreen = ({ route, navigation }) => {
                 contentInset={contentInset}
                 curve={shape.curveBumpX}
                 svg={{ fill: 'url(#gradient)' }}>
-                <Line color={colors.COLOR_PRIMARY_1_DARK_2} />
+                <Line color={colors.COLOR_PRIMARY_1_DARK_2} size={viewingMode == "Viewing" ? 4 : 2} />
                 <Grid />
-                <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
-                  onDotPress={i => {
-                    setSelectedTimeFrom(selectableTimeValues[i])
-                    setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
-                    setSelectedMoodValue(5)
-                    setShowAddMoodPeriodModal(true)
-                  }} />
+                {viewingMode == "Viewing" ? null
+                  : <Dots color={colors.COLOR_PRIMARY_1_DARK_2}
+                    onDotPress={i => {
+                      setSelectedTimeFrom(selectableTimeValues[i])
+                      setSelectedTimeTo(selectableTimeValues[selectableTimeValues.length > i + 1 ? i + 1 : i])
+                      setSelectedMoodValue(5)
+                      setShowAddMoodPeriodModal(true)
+                    }} />
+                }
                 <Defs>
                   <LinearGradient id={'gradient'} x1={'0%'} y1={'0%'} x2={'0%'} y2={'100%'}>
                     <Stop offset={'0%'} stopColor={colors.COLOR_PRIMARY_1} stopOpacity={1} />
@@ -170,7 +225,7 @@ const EvaluateDayScreen = ({ route, navigation }) => {
             </View>
 
             <XAxis
-            style={{paddingVertical:2}}
+              style={{ paddingVertical: 2 }}
               contentInset={{ left: 24, right: 28, }}
               min={0}
               max={8}
@@ -186,36 +241,51 @@ const EvaluateDayScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        <Text style={styles.subtitleText}>Write a note about {isToday ? "today" : "this day"}</Text>
-        <TextInput
-          placeholder='Optional'
-          ref={TextInputRef}
-          onFocus={() => { setKeyboardVisible(true) }}
-          style={{
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: colors.COLOR_DARK_GRAY,
-            width: "100%",
-            flex: 1,
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            marginBottom: 16,
-            height: 100,
-            textAlignVertical: "top"
-          }}
-          onChangeText={setNote}
-        />
+        {viewingMode == "Viewing"
+          ? <View style={{ backgroundColor: "white", flex: 1, borderRadius: 16, padding: 16, marginTop: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: "bold" }}>Note</Text>
+            <Text style={{ marginTop: 8 }}>{dateNote ? `"${dateNote}"` : "No note for this day"}</Text>
+          </View>
+          : <View>
+            <Text style={styles.subtitleText}>Write a note about {isToday ? "today" : "this day"}</Text>
+            <TextInput
+              value={note}
+              placeholder='Optional'
+              ref={TextInputRef}
+              onFocus={() => { setKeyboardVisible(true) }}
+              style={{
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: colors.COLOR_DARK_GRAY,
+                width: "100%",
+                flex: 1,
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                marginBottom: 16,
+                height: 100,
+                textAlignVertical: "top"
+              }}
+              onChangeText={setNote}
+            />
+          </View>}
+
       </ScrollView>
       {!keyboardVisible ?
         <TouchableNativeFeedback
           onPress={() => {
-            ToastAndroid.show(`You've evaluated ${selectedDate ? selectedDate : currentDate}!`, ToastAndroid.SHORT)
-            storeData().then(() => {
+            if (viewingMode != "Viewing") {
+              let toastMessagePrefix = viewingMode == "Editing" ? "Edited" : "You've evaluated"
+              if (viewingMode == "") { }
+              ToastAndroid.show(`${toastMessagePrefix} ${selectedDate ? selectedDate : currentDate}!`, ToastAndroid.SHORT)
+              storeData().then(() => {
+                navigation.goBack()
+                daysContext.setAmount(daysContext.amount + 1)
+              })
+            } else {
               navigation.goBack()
-              daysContext.setAmount(daysContext.amount + 1)
-            })
+            }
           }}>
-          <View style={styles.bottomButton} pointerEvents="box-only">
+          <View style={[styles.bottomButton, {opacity: selectedMode == "simple" && simpleMoodValue != null ? 1 : 0.6}]} pointerEvents="box-only">
             <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign: "center" }}>Done</Text>
           </View>
         </TouchableNativeFeedback>

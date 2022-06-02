@@ -32,22 +32,23 @@ const ProfileScreen = ({ navigation }) => {
   const [showInfoModal, setShowInfoModal] = useState(false)
   const [showBirthdayPicker, setShowBirthdayPicker] = useState(false)
 
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableNativeFeedback
-          useForeground
-          background={TouchableNativeFeedback.Ripple(null, true, 24)}
-          onPress={() => navigation.navigate("Settings")}
-        >
-          <View style={{ marginRight: 8, padding: 8 }} pointerEvents="box-only">
-            <Image source={images.settings} style={{ width: 24, height: 24 }} />
-          </View>
-        </TouchableNativeFeedback>
-      )
-    })
-  })
+  // Implement later
+  
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <TouchableNativeFeedback
+  //         useForeground
+  //         background={TouchableNativeFeedback.Ripple(null, true, 24)}
+  //         onPress={() => navigation.navigate("Settings")}
+  //       >
+  //         <View style={{ marginRight: 8, padding: 8 }} pointerEvents="box-only">
+  //           <Image source={images.settings} style={{ width: 24, height: 24 }} />
+  //         </View>
+  //       </TouchableNativeFeedback>
+  //     )
+  //   })
+  // })
 
   useEffect(() => {
     getData("@userInfo")

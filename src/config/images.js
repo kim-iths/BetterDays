@@ -1,5 +1,5 @@
 const images = {
-    //Screens/tavs
+    //Screens/tabs
     person: require("../assets/person.png"),
     personFilled: require("../assets/person_filled.png"),
     home: require("../assets/home.png"),
@@ -15,6 +15,7 @@ const images = {
     edit: require("../assets/edit.png"),
     delete: require("../assets/delete.png"),
     done: require("../assets/done.png"),
+    eye: require("../assets/eye.png"),
 
     //User info
     cake: require("../assets/cake.png"),

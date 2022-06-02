@@ -40,6 +40,13 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: colors.COLOR_DARK_GRAY
     },
+    evaluatingDayCard: {
+        backgroundColor: "white",
+        paddingVertical: 8,
+        textAlign: "center",
+        borderRadius: 16,
+        marginBottom: 8
+    },
     sliderText: {
         fontSize: 18,
         borderRadius: 8,
