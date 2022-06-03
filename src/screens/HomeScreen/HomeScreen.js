@@ -35,7 +35,7 @@ const HomeScreen = ({ navigation }) => {
     let today = getShortDate(moment())
     let pastWeek = [today]
     for (let i = 0; i < 6; i++) {
-      pastWeek.push(getShortDate(moment(today).subtract(i + 1, "d")))
+      pastWeek.push(getShortDate(moment(today).subtract(i, "d")))
     }
 
     try {
@@ -56,7 +56,6 @@ const HomeScreen = ({ navigation }) => {
         })
 
         let isOnlyNull = new Set(newData).size === 1;
-
         setData(isOnlyNull ? null : newData)
       })
     } catch (error) {
