@@ -58,24 +58,27 @@ const EvaluateDayScreen = ({ route, navigation }) => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableNativeFeedback
-          useForeground
-          background={TouchableNativeFeedback.Ripple(null, true, 24)}
-          onPress={() => {
-            if (viewingMode == "Editing") {
-              setViewingMode("Viewing")
-            } else {
-              console.log(viewingMode);
-              setViewingMode("Editing")
-              setSelectedMode("simple")
-              setNote(dateNote)
-            }
-          }}
-        >
-          <View pointerEvents="box-only">
-            <Image source={viewingMode == "Evaluating" || viewingMode == "Viewing" ? images.edit : images.eye} style={{ width: 24, height: 24 }} />
-          </View>
-        </TouchableNativeFeedback>
+        viewingMode == "Evaluating" ?
+          null
+
+          : <TouchableNativeFeedback
+            useForeground
+            background={TouchableNativeFeedback.Ripple(null, true, 24)}
+            onPress={() => {
+              if (viewingMode == "Editing") {
+                setViewingMode("Viewing")
+              } else {
+                console.log(viewingMode);
+                setViewingMode("Editing")
+                setSelectedMode("simple")
+                setNote(dateNote)
+              }
+            }}
+          >
+            <View pointerEvents="box-only">
+              <Image source={viewingMode == "Viewing" ? images.edit : images.eye} style={{ width: 24, height: 24 }} />
+            </View>
+          </TouchableNativeFeedback>
       )
     })
   })
@@ -143,7 +146,12 @@ const EvaluateDayScreen = ({ route, navigation }) => {
       let obj = { note: note, points: points }
       console.log(obj);
 
-      await AsyncStorage.setItem(date, JSON.stringify(obj)).then(console.log("saved " + date))
+      try {
+        await AsyncStorage.setItem(date, JSON.stringify(obj)).then(console.log("saved " + date))
+      } catch (error) {
+        console.log(error);
+      }
+
     } catch (e) { }
   }
 
@@ -285,7 +293,10 @@ const EvaluateDayScreen = ({ route, navigation }) => {
               navigation.goBack()
             }
           }}>
-          <View style={[styles.bottomButton, {opacity: selectedMode == "simple" && simpleMoodValue != null ? 1 : 0.6}]} pointerEvents="box-only">
+          <View style={[styles.bottomButton, {
+            opacity: selectedMode == "simple" && simpleMoodValue != null ? 1 :
+              (selectedMode == "advanced" ? 1 : 0.6)
+          }]} pointerEvents="box-only">
             <Text style={{ color: "white", fontSize: 20, fontWeight: "bold", textAlign: "center" }}>Done</Text>
           </View>
         </TouchableNativeFeedback>
